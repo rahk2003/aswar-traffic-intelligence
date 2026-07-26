@@ -1,3 +1,4 @@
+import argparse
 import json
 from collections import Counter
 from datetime import datetime, timezone
@@ -17,12 +18,57 @@ OVERPASS_URLS = [
     "https://overpass.private.coffee/api/interpreter",
 ]
 
-# Same sample point in Riyadh
-latitude = 24.7136
-longitude = 46.6753
 
-# Start with a small area for the first successful test
-radius_meters = 300
+def parse_arguments() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Collect roads and nearby services from "
+            "OpenStreetMap using Overpass API."
+        )
+    )
+
+    parser.add_argument(
+        "--lat",
+        type=float,
+        default=24.7136,
+        help="Location latitude.",
+    )
+
+    parser.add_argument(
+        "--lon",
+        type=float,
+        default=46.6753,
+        help="Location longitude.",
+    )
+
+    parser.add_argument(
+        "--radius",
+        type=int,
+        default=300,
+        help="Search radius in meters.",
+    )
+
+    arguments = parser.parse_args()
+
+    if not -90 <= arguments.lat <= 90:
+        parser.error("Latitude must be between -90 and 90.")
+
+    if not -180 <= arguments.lon <= 180:
+        parser.error("Longitude must be between -180 and 180.")
+
+    if not 50 <= arguments.radius <= 5000:
+        parser.error(
+            "Radius must be between 50 and 5000 meters."
+        )
+
+    return arguments
+
+
+arguments = parse_arguments()
+
+latitude = arguments.lat
+longitude = arguments.lon
+radius_meters = arguments.radius
 
 
 query = f"""
@@ -43,14 +89,13 @@ query = f"""
     node(around:{radius_meters},{latitude},{longitude})
         ["tourism"];
 );
-out tags center qt;
+out geom qt;
 """
-
 
 headers = {
     "User-Agent": (
-        "AswarTrafficIntelligence/1.0 "
-        "(GitHub: rahk2003/aswar-traffic-intelligence)"
+        "AdvertisingLocationIntelligence/1.0 "
+        "(outdoor advertising prototype)"
     )
 }
 
@@ -61,14 +106,13 @@ timeout = httpx.Timeout(
 
 osm_response = None
 successful_server = None
-errors = []
+errors: list[str] = []
 
 
 with httpx.Client(
     timeout=timeout,
     follow_redirects=True,
 ) as client:
-
     for overpass_url in OVERPASS_URLS:
         print(f"Trying Overpass server: {overpass_url}")
 
@@ -80,6 +124,7 @@ with httpx.Client(
             )
 
             response.raise_for_status()
+
             osm_response = response.json()
             successful_server = overpass_url
 
@@ -100,12 +145,16 @@ with httpx.Client(
             errors.append(message)
 
         except httpx.RequestError as error:
-            message = f"{overpass_url} connection error: {error}"
+            message = (
+                f"{overpass_url} connection error: {error}"
+            )
             print(message)
             errors.append(message)
 
         except ValueError:
-            message = f"{overpass_url} returned invalid JSON"
+            message = (
+                f"{overpass_url} returned invalid JSON"
+            )
             print(message)
             errors.append(message)
 
@@ -127,10 +176,10 @@ amenities = []
 shops = []
 tourism_places = []
 
-road_types = Counter()
-amenity_types = Counter()
-shop_types = Counter()
-tourism_types = Counter()
+road_types: Counter[str] = Counter()
+amenity_types: Counter[str] = Counter()
+shop_types: Counter[str] = Counter()
+tourism_types: Counter[str] = Counter()
 
 
 for element in elements:
@@ -141,7 +190,10 @@ for element in elements:
     shop_type = tags.get("shop")
     tourism_type = tags.get("tourism")
 
-    if element.get("type") == "way" and highway_type:
+    if (
+        element.get("type") == "way"
+        and highway_type
+    ):
         roads.append(element)
         road_types[highway_type] += 1
 
@@ -168,9 +220,15 @@ OUTPUT_DIR.mkdir(
     exist_ok=True,
 )
 
+coordinate_suffix = (
+    f"lat{latitude:.5f}_"
+    f"lon{longitude:.5f}"
+)
+
 filename = (
     "osm_sample_"
-    f"{collected_at.strftime('%Y%m%d_%H%M%S')}.json"
+    f"{collected_at.strftime('%Y%m%d_%H%M%S')}_"
+    f"{coordinate_suffix}.json"
 )
 
 output_path = OUTPUT_DIR / filename
@@ -188,10 +246,14 @@ output_data = {
     "summary": {
         "total_elements": len(elements),
         "roads_count": len(roads),
-        "traffic_signals_count": len(traffic_signals),
+        "traffic_signals_count": len(
+            traffic_signals
+        ),
         "amenities_count": len(amenities),
         "shops_count": len(shops),
-        "tourism_places_count": len(tourism_places),
+        "tourism_places_count": len(
+            tourism_places
+        ),
         "road_types": dict(road_types),
         "amenity_types": dict(amenity_types),
         "shop_types": dict(shop_types),
@@ -214,6 +276,7 @@ with output_path.open(
 
 
 print("\nOpenStreetMap data collected successfully")
+print(f"Requested point: {latitude}, {longitude}")
 print(f"Server used: {successful_server}")
 print(f"Search radius: {radius_meters} meters")
 print(f"Total elements: {len(elements)}")

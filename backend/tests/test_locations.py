@@ -97,7 +97,7 @@ def test_root_endpoint(client):
     assert response.status_code == 200
     assert response.json() == {
         "message": (
-            "Aswar Traffic Intelligence API "
+            "Advertising Location Intelligence API "
             "is running"
         )
     }

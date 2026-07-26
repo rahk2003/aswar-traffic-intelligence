@@ -1,9 +1,10 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
 
 from geoalchemy2 import Geometry
 from sqlalchemy import (
     Boolean,
+    Date,
     DateTime,
     Float,
     ForeignKey,
@@ -47,6 +48,31 @@ class Location(Base):
             spatial_index=True,
         ),
         nullable=False,
+    )
+
+    road_number: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+
+    vehicle_count_24h: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+
+    data_from: Mapped[date | None] = mapped_column(
+        Date,
+        nullable=True,
+    )
+
+    data_to: Mapped[date | None] = mapped_column(
+        Date,
+        nullable=True,
+    )
+
+    traffic_data_source: Mapped[str | None] = mapped_column(
+        String(150),
+        nullable=True,
     )
 
     created_at: Mapped[datetime] = mapped_column(

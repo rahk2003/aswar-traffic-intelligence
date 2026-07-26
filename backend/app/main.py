@@ -5,7 +5,7 @@ from app.routes.locations import router as locations_router
 
 
 app = FastAPI(
-    title="Aswar Traffic Intelligence API",
+    title="Advertising Location Intelligence API",
     description=(
         "Traffic and geospatial intelligence API "
         "for outdoor advertising locations."
@@ -33,7 +33,8 @@ app.include_router(locations_router)
 def root() -> dict[str, str]:
     return {
         "message": (
-            "Aswar Traffic Intelligence API is running"
+            "Advertising Location Intelligence API "
+            "is running"
         )
     }
 

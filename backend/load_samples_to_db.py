@@ -1,10 +1,11 @@
+import argparse
 import json
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 from geoalchemy2.elements import WKTElement
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from app.database import SessionLocal
 from app.models import Location, OSMSnapshot, TrafficReading
@@ -14,12 +15,52 @@ BASE_DIR = Path(__file__).resolve().parent
 RAW_DATA_DIR = BASE_DIR / "data" / "raw"
 
 
+def parse_arguments() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Load matching TomTom and OpenStreetMap "
+            "samples into PostgreSQL."
+        )
+    )
+
+    parser.add_argument(
+        "--name",
+        required=True,
+        help="Display name for the location.",
+    )
+
+    parser.add_argument(
+        "--lat",
+        type=float,
+        required=True,
+        help="Location latitude.",
+    )
+
+    parser.add_argument(
+        "--lon",
+        type=float,
+        required=True,
+        help="Location longitude.",
+    )
+
+    arguments = parser.parse_args()
+
+    if not -90 <= arguments.lat <= 90:
+        parser.error("Latitude must be between -90 and 90.")
+
+    if not -180 <= arguments.lon <= 180:
+        parser.error("Longitude must be between -180 and 180.")
+
+    return arguments
+
+
 def get_latest_file(pattern: str) -> Path:
     files = list(RAW_DATA_DIR.glob(pattern))
 
     if not files:
         raise FileNotFoundError(
-            f"No files matching {pattern} were found in {RAW_DATA_DIR}"
+            f"No files matching {pattern} were found "
+            f"in {RAW_DATA_DIR}"
         )
 
     return max(
@@ -42,16 +83,75 @@ def parse_datetime(value: str) -> datetime:
     )
 
 
-traffic_file = get_latest_file("traffic_sample_*.json")
-osm_file = get_latest_file("osm_sample_*.json")
+def validate_requested_point(
+    data: dict[str, Any],
+    expected_latitude: float,
+    expected_longitude: float,
+    source_name: str,
+) -> None:
+    requested_point = data.get("requested_point", {})
+
+    actual_latitude = requested_point.get("latitude")
+    actual_longitude = requested_point.get("longitude")
+
+    if (
+        actual_latitude is None
+        or actual_longitude is None
+    ):
+        raise ValueError(
+            f"{source_name} file does not contain "
+            "requested_point coordinates."
+        )
+
+    tolerance = 0.000001
+
+    if (
+        abs(actual_latitude - expected_latitude)
+        > tolerance
+        or abs(actual_longitude - expected_longitude)
+        > tolerance
+    ):
+        raise ValueError(
+            f"{source_name} coordinates do not match "
+            "the requested location."
+        )
+
+
+arguments = parse_arguments()
+
+location_name = arguments.name
+latitude = arguments.lat
+longitude = arguments.lon
+
+coordinate_suffix = (
+    f"lat{latitude:.5f}_"
+    f"lon{longitude:.5f}"
+)
+
+traffic_file = get_latest_file(
+    f"traffic_sample_*_{coordinate_suffix}.json"
+)
+
+osm_file = get_latest_file(
+    f"osm_sample_*_{coordinate_suffix}.json"
+)
 
 traffic_data = load_json(traffic_file)
 osm_data = load_json(osm_file)
 
-requested_point = traffic_data["requested_point"]
+validate_requested_point(
+    data=traffic_data,
+    expected_latitude=latitude,
+    expected_longitude=longitude,
+    source_name="TomTom",
+)
 
-latitude = requested_point["latitude"]
-longitude = requested_point["longitude"]
+validate_requested_point(
+    data=osm_data,
+    expected_latitude=latitude,
+    expected_longitude=longitude,
+    source_name="OpenStreetMap",
+)
 
 traffic_analysis = traffic_data["analysis"]
 osm_summary = osm_data["summary"]
@@ -68,14 +168,18 @@ osm_collected_at = parse_datetime(
 with SessionLocal() as database:
     location = database.scalar(
         select(Location).where(
-            Location.latitude == latitude,
-            Location.longitude == longitude,
+            func.abs(
+                Location.latitude - latitude
+            ) < 0.000001,
+            func.abs(
+                Location.longitude - longitude
+            ) < 0.000001,
         )
     )
 
     if location is None:
         location = Location(
-            name="Riyadh Sample Location",
+            name=location_name,
             latitude=latitude,
             longitude=longitude,
             geom=WKTElement(
@@ -87,9 +191,15 @@ with SessionLocal() as database:
         database.add(location)
         database.flush()
 
-        print("Location inserted successfully")
+        print(
+            "Location inserted successfully: "
+            f"id={location.id}"
+        )
     else:
-        print("Location already exists")
+        print(
+            "Location already exists: "
+            f"id={location.id}"
+        )
 
     traffic_exists = database.scalar(
         select(TrafficReading.id).where(
@@ -138,7 +248,10 @@ with SessionLocal() as database:
         )
 
         database.add(traffic_reading)
-        print("Traffic reading inserted successfully")
+
+        print(
+            "Traffic reading inserted successfully"
+        )
     else:
         print("Traffic reading already exists")
 
@@ -199,7 +312,10 @@ with SessionLocal() as database:
         )
 
         database.add(osm_snapshot)
-        print("OpenStreetMap snapshot inserted successfully")
+
+        print(
+            "OpenStreetMap snapshot inserted successfully"
+        )
     else:
         print("OpenStreetMap snapshot already exists")
 
@@ -207,5 +323,7 @@ with SessionLocal() as database:
 
 
 print("\nSample data loaded into PostgreSQL successfully")
+print(f"Location name: {location_name}")
+print(f"Coordinates: {latitude}, {longitude}")
 print(f"Traffic file: {traffic_file.name}")
 print(f"OpenStreetMap file: {osm_file.name}")

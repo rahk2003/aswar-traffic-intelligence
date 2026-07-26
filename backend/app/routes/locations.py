@@ -1,11 +1,14 @@
 from typing import Any
-from pydantic import BaseModel
-
+from pydantic import BaseModel, Field
+from app.services.live_point_analysis import (
+    analyze_live_point,
+)
 from fastapi import (
     APIRouter,
     Depends,
     HTTPException,
 )
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -30,6 +33,22 @@ router = APIRouter(
 class CompareLocationsRequest(BaseModel):
     location_a_id: int
     location_b_id: int
+class AnalyzePointRequest(BaseModel):
+    latitude: float = Field(
+        ge=-90,
+        le=90,
+    )
+
+    longitude: float = Field(
+        ge=-180,
+        le=180,
+    )
+
+    radius_meters: int = Field(
+        default=1000,
+        ge=250,
+        le=2000,
+    )
 
 def get_latest_traffic(
     database: Session,
@@ -513,6 +532,28 @@ def compare_locations(
             "Traffic Score method."
         ),
     }
+    
+@router.post("/analyze-point")
+def analyze_point(
+    request: AnalyzePointRequest,
+) -> dict:
+    """
+    Analyze any point selected from the map using
+    live OpenStreetMap and TomTom data.
+    """
+
+    try:
+        return analyze_live_point(
+            latitude=request.latitude,
+            longitude=request.longitude,
+            radius_meters=request.radius_meters,
+        )
+
+    except RuntimeError as error:
+        raise HTTPException(
+            status_code=502,
+            detail=str(error),
+        ) from error
 @router.get("/{location_id}/summary")
 def get_location_summary(
     location_id: int,

@@ -1,4 +1,7 @@
 import {
+  useState,
+} from "react";
+import {
   Area,
   AreaChart,
   Bar,
@@ -10,6 +13,8 @@ import {
   YAxis,
 } from "recharts";
 
+import AIAssistant from "./AIAssistant";
+import PDFReportButton from "./PDFReport";
 import {
   buildEstimatedTrafficActivity,
   formatNumber,
@@ -589,8 +594,16 @@ export default function AnalysisDashboard({
   t,
   i18n,
 }) {
+  const [
+    assistantExplanation,
+    setAssistantExplanation,
+  ] = useState(null);
   const traffic = result?.live_traffic;
   const score = result?.traffic_score;
+  const currentLanguage =
+    i18n.language.startsWith("ar")
+      ? "ar"
+      : "en";
 
   return (
     <section
@@ -607,7 +620,21 @@ export default function AnalysisDashboard({
           </h2>
         </div>
 
-        <p>{t("dashboard.description")}</p>
+        <div className="dashboard-heading-actions">
+          <p>{t("dashboard.description")}</p>
+
+          <PDFReportButton
+            result={result}
+            assistantExplanation={
+              assistantExplanation?.language
+                === currentLanguage
+                ? assistantExplanation.text
+                : ""
+            }
+            t={t}
+            i18n={i18n}
+          />
+        </div>
       </div>
 
       <div className="dashboard-chart-grid">
@@ -631,6 +658,16 @@ export default function AnalysisDashboard({
         result={result}
         t={t}
         i18n={i18n}
+      />
+
+      <AIAssistant
+        key={currentLanguage}
+        result={result}
+        t={t}
+        i18n={i18n}
+        onAnswerChange={
+          setAssistantExplanation
+        }
       />
     </section>
   );

@@ -133,3 +133,25 @@ export function compareLocations(
     },
   );
 }
+
+
+export function explainAnalysis({
+  question,
+  questionType,
+  language,
+  analysis,
+}) {
+  return request(
+    "/api/assistant/explain",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        question,
+        question_type: questionType,
+        language,
+        analysis,
+      }),
+    },
+    20000,
+  );
+}

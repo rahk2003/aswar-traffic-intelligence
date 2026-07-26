@@ -6,11 +6,215 @@ export const ANALYSIS_RADIUS_OPTIONS = [
   2000,
 ];
 
+const TRAFFIC_ACTIVITY_PATTERN = [
+  {
+    timeKey: "sixAm",
+    multiplier: 0.62,
+    congestionInfluence: 0.04,
+  },
+  {
+    timeKey: "nineAm",
+    multiplier: 0.94,
+    congestionInfluence: 0.1,
+  },
+  {
+    timeKey: "noon",
+    multiplier: 0.72,
+    congestionInfluence: 0.05,
+  },
+  {
+    timeKey: "threePm",
+    multiplier: 0.79,
+    congestionInfluence: 0.06,
+  },
+  {
+    timeKey: "sixPm",
+    multiplier: 1,
+    congestionInfluence: 0.12,
+  },
+  {
+    timeKey: "ninePm",
+    multiplier: 0.69,
+    congestionInfluence: 0.05,
+  },
+];
+
+const TRAFFIC_FACTOR_SPECS = [
+  {
+    key: "roadType",
+    scoreKey: "road_type_score",
+    weightKey: "road_type",
+  },
+  {
+    key: "roadDensity",
+    scoreKey: "road_density_score",
+    weightKey: "road_density",
+  },
+  {
+    key: "intersections",
+    scoreKey: "intersection_score",
+    weightKey: "intersections",
+  },
+  {
+    key: "services",
+    scoreKey: "services_score",
+    weightKey: "services",
+  },
+  {
+    key: "liveTraffic",
+    scoreKey: "live_traffic_score",
+    weightKey: "live_traffic",
+  },
+  {
+    key: "historicalVolume",
+    scoreKey: "historical_volume_score",
+    weightKey: "historical_volume",
+  },
+];
+
 
 export function hasValue(value) {
   return value !== null
     && value !== undefined
     && value !== "";
+}
+
+
+function clampScore(value) {
+  return Math.max(
+    0,
+    Math.min(value, 100),
+  );
+}
+
+
+function toFiniteNumber(value) {
+  if (!hasValue(value)) {
+    return null;
+  }
+
+  const parsedValue = Number(value);
+
+  return Number.isFinite(parsedValue)
+    ? parsedValue
+    : null;
+}
+
+
+export function buildEstimatedTrafficActivity(
+  trafficScore,
+  congestionIndex,
+) {
+  const parsedScore =
+    toFiniteNumber(trafficScore);
+  const parsedCongestion =
+    toFiniteNumber(congestionIndex);
+  const congestionScore =
+    parsedCongestion === null
+      ? null
+      : clampScore(parsedCongestion * 100);
+
+  if (
+    parsedScore === null
+    && congestionScore === null
+  ) {
+    return [];
+  }
+
+  const normalizedScore =
+    parsedScore === null
+      ? congestionScore
+      : clampScore(parsedScore);
+  const baseline =
+    congestionScore === null
+      ? normalizedScore
+      : (
+          normalizedScore * 0.76
+          + congestionScore * 0.24
+        );
+
+  return TRAFFIC_ACTIVITY_PATTERN.map(
+    ({
+      timeKey,
+      multiplier,
+      congestionInfluence,
+    }) => ({
+      timeKey,
+      activity: Math.round(
+        clampScore(
+          baseline * multiplier
+          + (
+            congestionScore === null
+              ? 0
+              : congestionScore
+                * congestionInfluence
+          ),
+        ),
+      ),
+    }),
+  );
+}
+
+
+export function getTrafficFactorData(
+  score,
+) {
+  if (!score) {
+    return [];
+  }
+
+  return TRAFFIC_FACTOR_SPECS
+    .map((factor) => {
+      const factorScore = toFiniteNumber(
+        score[factor.scoreKey],
+      );
+      const rawWeight = toFiniteNumber(
+        score.weights_used?.[
+          factor.weightKey
+        ],
+      );
+
+      if (factorScore === null) {
+        return null;
+      }
+
+      return {
+        key: factor.key,
+        score: clampScore(factorScore),
+        weight:
+          rawWeight === null
+            ? null
+            : clampScore(rawWeight * 100),
+      };
+    })
+    .filter(Boolean);
+}
+
+
+export function getSuitabilityCode(
+  trafficScore,
+) {
+  const score = toFiniteNumber(
+    trafficScore,
+  );
+
+  if (score === null) {
+    return "unavailable";
+  }
+
+  if (score >= 80) {
+    return "strong";
+  }
+
+  if (score >= 60) {
+    return "promising";
+  }
+
+  if (score >= 40) {
+    return "balanced";
+  }
+
+  return "limited";
 }
 
 
@@ -20,7 +224,12 @@ export function formatNumber(
   unavailable,
   maximumFractionDigits = 0,
 ) {
-  if (!hasValue(value)) {
+  const numericValue = Number(value);
+
+  if (
+    !hasValue(value)
+    || !Number.isFinite(numericValue)
+  ) {
     return unavailable;
   }
 
@@ -31,16 +240,21 @@ export function formatNumber(
     {
       maximumFractionDigits,
     },
-  ).format(value);
+  ).format(numericValue);
 }
 
 
 export function formatCoordinate(value) {
-  if (!hasValue(value)) {
+  const numericValue = Number(value);
+
+  if (
+    !hasValue(value)
+    || !Number.isFinite(numericValue)
+  ) {
     return "—";
   }
 
-  return Number(value).toFixed(6);
+  return numericValue.toFixed(6);
 }
 
 

@@ -67,7 +67,7 @@ const serviceCategoriesArabic = {
   college: "كليات",
   university: "جامعات",
   mosque: "مساجد",
-  place_of_worship: "دور عبادة",
+  place_of_worship: "مساجد",
   bank: "بنوك",
   atm: "أجهزة صراف آلي",
   fuel: "محطات وقود",
@@ -254,6 +254,102 @@ const resources = {
           "TomTom لحالة المرور المباشرة",
         contextNote:
           "تعتمد النتيجة على خصائص الموقع وحالة المرور الحالية. لا يتوفر عدّ رسمي للمركبات خلال 24 ساعة للنقاط المختارة مباشرة من الخريطة.",
+      },
+
+      dashboard: {
+        eyebrow: "لوحة ذكاء الموقع",
+        title: "لوحة مؤشرات الموقع الإعلاني",
+        description:
+          "قراءة مرئية للعوامل التي كوّنت النتيجة، مع تقدير لنشاط الموقع وملخص يساعد على تفسير ملاءمته الإعلانية.",
+        loading: "جارٍ تجهيز لوحة المؤشرات…",
+        trafficActivity:
+          "النشاط المروري التقديري خلال اليوم",
+        trafficActivityNote:
+          "منحنى تقديري مبني على درجة الموقع والازدحام الحالي، ولا يمثل عددًا فعليًا أو رسميًا للمركبات.",
+        estimatedData: "بيانات تقديرية",
+        activityIndex: "مؤشر النشاط",
+        activityScale:
+          "مقياس نشاط تقديري من صفر إلى مئة",
+        trafficActivityChartLabel:
+          "رسم للنشاط المروري التقديري خلال فترات اليوم",
+        influencingFactors:
+          "العوامل المؤثرة في درجة الحركة",
+        backendFactors: "درجات الخادم الفعلية",
+        factorScale:
+          "درجة كل عامل من مئة",
+        trafficFactorsChartLabel:
+          "رسم درجات العوامل المستخدمة في حساب النتيجة",
+        factorScore: "درجة العامل",
+        factorWeight:
+          "وزن العامل في النتيجة: {{weight}}٪",
+        weightUnavailable:
+          "وزن العامل غير متوفر",
+        factorsNote:
+          "تعرض الأعمدة درجات العوامل المحسوبة في الخادم من 100. مرّر على كل عامل لعرض وزنه الفعلي في النتيجة.",
+        chartUnavailable:
+          "لا تتوفر بيانات كافية لعرض هذا الرسم.",
+        times: {
+          sixAm: "٦ ص",
+          nineAm: "٩ ص",
+          noon: "١٢ ظ",
+          threePm: "٣ م",
+          sixPm: "٦ م",
+          ninePm: "٩ م",
+        },
+        factors: {
+          roadType: "نوع الطريق",
+          roadDensity: "كثافة الطرق",
+          intersections: "التقاطعات",
+          services: "الخدمات القريبة",
+          liveTraffic: "الازدحام المباشر",
+          historicalVolume: "حجم المرور التاريخي",
+        },
+        locationSummary: "الملخص النهائي",
+        summaryTitle: "ماذا تعني نتيجة هذا الموقع؟",
+        suitability: {
+          strong:
+            "ملاءمة إعلانية تقديرية مرتفعة",
+          promising: "قد يكون مناسبًا للإعلان",
+          balanced:
+            "ملاءمة تحتاج تقييمًا إضافيًا",
+          limited:
+            "ملاءمة إعلانية تقديرية محدودة",
+          unavailable: "لا يمكن تحديد الملاءمة",
+        },
+        summaryIntro:
+          "حصل الموقع على درجة حركة مرورية {{score}} من 100، ويصنّف ضمن «{{level}}».",
+        summaryUnavailable:
+          "لم تتوفر درجة حركة مكتملة لهذا الموقع، لذلك لا يمكن تقديم قراءة نهائية للملاءمة.",
+        assessment: {
+          strong:
+            "تشير المؤشرات المتاحة إلى فرصة قوية نسبيًا للإعلان الخارجي، مع ضرورة التحقق ميدانيًا من وضوح اللوحة واتجاهها وتكلفة الموقع.",
+          promising:
+            "تشير المؤشرات إلى أن الموقع قد يكون مناسبًا للإعلان الخارجي وفق سياقه المروري والمكاني الحالي.",
+          balanced:
+            "تعرض المؤشرات نقاط قوة وحدودًا متقاربة؛ وقد يحتاج الموقع إلى مقارنة بدائل والتحقق الميداني قبل اتخاذ القرار.",
+          limited:
+            "تشير البيانات الحالية إلى تعرض مروري أو نشاط مكاني أقل، لذلك قد تكون ملاءمة الموقع الإعلانية محدودة مقارنة بخيارات أقوى.",
+          unavailable:
+            "لا تتوفر بيانات كافية للحكم على ملاءمة الموقع الإعلانية وفق المنهج الحالي.",
+        },
+        whyThisAssessment:
+          "لماذا ظهرت هذه النتيجة؟",
+        factorReason:
+          "{{factor}} — مستوى {{level}} ضمن نموذج التحليل.",
+        factorTones: {
+          strong: "قوي",
+          moderate: "متوسط",
+          weak: "منخفض",
+        },
+        nearestRoad: "أقرب طريق",
+        liveTrafficReading:
+          "قراءة المرور المباشرة",
+        congestionReading:
+          "ازدحام حالي {{congestion}}٪",
+        available: "متوفرة",
+        summaryDisclaimer:
+          "هذه ملاءمة تقديرية مبنية على بيانات الطرق والخدمات وحالة المرور المتاحة وقت التحليل. لا تمثل عدًا رسميًا للمركبات ولا تغني عن التحقق من الرؤية والتراخيص والتكلفة والجمهور المستهدف.",
+        mapSummary: "ملخص الموقع على الخريطة",
       },
 
       services: {
@@ -503,6 +599,104 @@ const resources = {
           "TomTom for live traffic conditions",
         contextNote:
           "This result uses the location context and current traffic conditions. An official 24-hour vehicle count is not available for arbitrary map points.",
+      },
+
+      dashboard: {
+        eyebrow: "Location intelligence dashboard",
+        title: "Advertising Location Dashboard",
+        description:
+          "A visual reading of the factors behind the score, estimated site activity, and a final interpretation of advertising suitability.",
+        loading: "Preparing the dashboard…",
+        trafficActivity:
+          "Estimated Traffic Activity During the Day",
+        trafficActivityNote:
+          "This estimated curve is derived from the site score and current congestion. It is not an actual or official vehicle count.",
+        estimatedData: "Estimated data",
+        activityIndex: "Activity index",
+        activityScale:
+          "Estimated activity scale from zero to one hundred",
+        trafficActivityChartLabel:
+          "Chart of estimated traffic activity across the day",
+        influencingFactors:
+          "Factors Influencing the Traffic Score",
+        backendFactors: "Actual backend scores",
+        factorScale:
+          "Each factor scored out of one hundred",
+        trafficFactorsChartLabel:
+          "Chart of factor scores used to calculate the result",
+        factorScore: "Factor score",
+        factorWeight:
+          "Weight in the result: {{weight}}%",
+        weightUnavailable:
+          "Factor weight unavailable",
+        factorsNote:
+          "Bars show the backend-calculated factor scores out of 100. Hover over a factor to see its actual weight in the result.",
+        chartUnavailable:
+          "There is not enough data to display this chart.",
+        times: {
+          sixAm: "6 AM",
+          nineAm: "9 AM",
+          noon: "12 PM",
+          threePm: "3 PM",
+          sixPm: "6 PM",
+          ninePm: "9 PM",
+        },
+        factors: {
+          roadType: "Road type",
+          roadDensity: "Road density",
+          intersections: "Intersections",
+          services: "Nearby services",
+          liveTraffic: "Live congestion",
+          historicalVolume: "Historical traffic volume",
+        },
+        locationSummary: "Final summary",
+        summaryTitle: "What does this result mean?",
+        suitability: {
+          strong:
+            "High estimated advertising suitability",
+          promising:
+            "Potentially suitable for advertising",
+          balanced:
+            "Suitability needs further evaluation",
+          limited:
+            "Limited estimated advertising suitability",
+          unavailable:
+            "Suitability cannot be determined",
+        },
+        summaryIntro:
+          "The location received a Traffic Score of {{score}} out of 100 and is classified as “{{level}}.”",
+        summaryUnavailable:
+          "A complete Traffic Score was not available, so a final suitability reading cannot be provided.",
+        assessment: {
+          strong:
+            "Available indicators suggest relatively strong outdoor advertising potential, subject to an on-site check of visibility, orientation, and cost.",
+          promising:
+            "The indicators suggest this site may be suitable for outdoor advertising based on its current traffic and spatial context.",
+          balanced:
+            "The indicators show a balanced mix of strengths and limitations. Comparing alternatives and conducting an on-site review may be useful.",
+          limited:
+            "Current data suggests lower traffic exposure or surrounding activity, so the site may be less suitable than stronger alternatives.",
+          unavailable:
+            "There is not enough data to assess the site's advertising suitability using the current method.",
+        },
+        whyThisAssessment:
+          "Why did the site receive this result?",
+        factorReason:
+          "{{factor}} — {{level}} level in the analysis model.",
+        factorTones: {
+          strong: "strong",
+          moderate: "moderate",
+          weak: "low",
+        },
+        nearestRoad: "Nearest road",
+        liveTrafficReading:
+          "Live traffic reading",
+        congestionReading:
+          "{{congestion}}% current congestion",
+        available: "Available",
+        summaryDisclaimer:
+          "This is an estimated suitability reading based on available road, service, and traffic data at analysis time. It is not an official vehicle count and does not replace checks for visibility, permits, cost, or target audience.",
+        mapSummary: "Map location summary",
       },
 
       services: {

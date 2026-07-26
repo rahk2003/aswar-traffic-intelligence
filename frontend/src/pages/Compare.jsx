@@ -289,6 +289,9 @@ function AnalysisPreview({
               2,
             )}
             suffix={t("map.outOf100")}
+            progressValue={
+              score?.traffic_score
+            }
             level={t(
               `levels.${levelCode}`,
               {

@@ -266,8 +266,19 @@ export function ScoreCard({
   value,
   suffix,
   level,
+  progressValue,
   compact = false,
 }) {
+  const parsedProgress =
+    Number(progressValue);
+  const progress =
+    Number.isFinite(parsedProgress)
+      ? Math.max(
+          0,
+          Math.min(parsedProgress, 100),
+        )
+      : null;
+
   return (
     <div
       className={
@@ -275,15 +286,34 @@ export function ScoreCard({
         + (compact ? " score-result--compact" : "")
       }
     >
-      <div>
+      <div className="score-result-value">
         <span>{label}</span>
         <strong>{value}</strong>
         <small>{suffix}</small>
       </div>
 
-      <span className="traffic-level-badge">
-        {level}
-      </span>
+      <div className="score-result-context">
+        <span className="traffic-level-badge">
+          {level}
+        </span>
+
+        {progress !== null && (
+          <div
+            className="score-progress"
+            role="progressbar"
+            aria-label={label}
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow={progress}
+          >
+            <span
+              style={{
+                width: `${progress}%`,
+              }}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

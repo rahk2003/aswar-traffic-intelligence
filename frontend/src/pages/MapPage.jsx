@@ -1,4 +1,6 @@
 import {
+  lazy,
+  Suspense,
   useEffect,
   useState,
 } from "react";
@@ -37,6 +39,11 @@ const RIYADH_CENTER = [
   24.7136,
   46.6753,
 ];
+const AnalysisDashboard = lazy(
+  () => import(
+    "../components/DashboardComponents"
+  ),
+);
 
 
 function MapClickHandler({ onSelect }) {
@@ -74,6 +81,49 @@ function SelectedPointMapController({ point }) {
   ]);
 
   return null;
+}
+
+
+function MapAnalysisOverlay({
+  point,
+  radius,
+  roadName,
+  t,
+  formatValue,
+}) {
+  if (!point) {
+    return null;
+  }
+
+  return (
+    <aside
+      className="map-analysis-overlay"
+      aria-label={t("dashboard.mapSummary")}
+    >
+      <strong>{t("dashboard.mapSummary")}</strong>
+
+      <span dir="ltr">
+        {formatCoordinate(point.latitude)}
+        {", "}
+        {formatCoordinate(point.longitude)}
+      </span>
+
+      <span>
+        {t(
+          "map.radiusCurrent",
+          {
+            radius: formatValue(radius),
+          },
+        )}
+      </span>
+
+      <span>
+        {t("dashboard.nearestRoad")}
+        {": "}
+        {roadName || t("common.unavailable")}
+      </span>
+    </aside>
+  );
 }
 
 
@@ -283,6 +333,20 @@ function MapPage() {
             />
           </MapContainer>
 
+          {result && (
+            <MapAnalysisOverlay
+              point={selectedPoint}
+              radius={resultRadius}
+              roadName={
+                roadName || roadTypeLabel
+              }
+              t={t}
+              formatValue={(value) =>
+                displayNumber(value)
+              }
+            />
+          )}
+
           <div className="map-instruction">
             <span aria-hidden="true">⌖</span>
             {t("map.mapInstruction")}
@@ -428,6 +492,9 @@ function MapPage() {
                 )}
                 suffix={t("map.outOf100")}
                 level={levelLabel}
+                progressValue={
+                  score?.traffic_score
+                }
               />
 
               <div className="metrics-heading">
@@ -625,6 +692,25 @@ function MapPage() {
           )}
         </aside>
       </section>
+
+      {selectedPoint && result && (
+        <Suspense
+          fallback={
+            <div
+              className="dashboard-loading"
+              role="status"
+            >
+              {t("dashboard.loading")}
+            </div>
+          }
+        >
+          <AnalysisDashboard
+            result={result}
+            t={t}
+            i18n={i18n}
+          />
+        </Suspense>
+      )}
     </main>
   );
 }

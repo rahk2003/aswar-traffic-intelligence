@@ -24,6 +24,24 @@ async function request(
   timeoutMilliseconds = 90000,
 ) {
   const controller = new AbortController();
+  const {
+    signal: externalSignal,
+    ...fetchOptions
+  } = options;
+  const abortFromExternal = () =>
+    controller.abort();
+
+  if (externalSignal?.aborted) {
+    controller.abort();
+  } else {
+    externalSignal?.addEventListener(
+      "abort",
+      abortFromExternal,
+      {
+        once: true,
+      },
+    );
+  }
 
   const timeoutId = window.setTimeout(
     () => controller.abort(),
@@ -34,12 +52,12 @@ async function request(
     const response = await fetch(
       `${API_BASE_URL}${path}`,
       {
-        ...options,
+        ...fetchOptions,
         signal: controller.signal,
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          ...options.headers,
+          ...fetchOptions.headers,
         },
       },
     );
@@ -83,6 +101,10 @@ async function request(
     );
   } finally {
     window.clearTimeout(timeoutId);
+    externalSignal?.removeEventListener(
+      "abort",
+      abortFromExternal,
+    );
   }
 }
 
@@ -154,4 +176,43 @@ export function explainAnalysis({
     },
     20000,
   );
+}
+
+
+export function getSatelliteContext({
+  latitude,
+  longitude,
+  radiusMeters,
+  signal,
+}) {
+  const query = new URLSearchParams({
+    latitude: String(latitude),
+    longitude: String(longitude),
+    radius_meters: String(radiusMeters),
+  });
+
+  return request(
+    `/api/satellite/context?${query}`,
+    {
+      method: "GET",
+      signal,
+    },
+    70000,
+  );
+}
+
+
+export function getApiAssetUrl(path) {
+  if (!path) {
+    return "";
+  }
+
+  try {
+    return new URL(
+      path,
+      `${API_BASE_URL}/`,
+    ).toString();
+  } catch {
+    return "";
+  }
 }

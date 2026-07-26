@@ -15,9 +15,11 @@ import {
 
 import AIAssistant from "./AIAssistant";
 import PDFReportButton from "./PDFReport";
+import SatelliteContextCard from "./SatelliteContextCard";
 import {
   buildEstimatedTrafficActivity,
   formatNumber,
+  getDominantSatelliteClass,
   getRoadName,
   getRoadTypeLabel,
   getSuitabilityCode,
@@ -113,6 +115,7 @@ function ChartEmptyState({ t }) {
 export function TrafficActivityChart({
   trafficScore,
   congestionIndex,
+  historicalVolumeAvailable,
   t,
   i18n,
 }) {
@@ -235,7 +238,14 @@ export function TrafficActivityChart({
       )}
 
       <p className="dashboard-chart-note">
-        {t("dashboard.trafficActivityNote")}
+        {t(
+          historicalVolumeAvailable
+            ? (
+                "dashboard."
+                + "trafficActivityNoteWithHistorical"
+              )
+            : "dashboard.trafficActivityNote",
+        )}
       </p>
     </article>
   );
@@ -418,6 +428,7 @@ function getFactorTone(score) {
 
 export function LocationSummary({
   result,
+  satelliteContext,
   t,
   i18n,
 }) {
@@ -466,6 +477,10 @@ export function LocationSummary({
     getTrafficFactorData(score),
     suitabilityCode,
   );
+  const dominantSatelliteClass =
+    getDominantSatelliteClass(
+      satelliteContext,
+    );
 
   return (
     <article className="location-summary-card">
@@ -581,6 +596,14 @@ export function LocationSummary({
         </div>
       </div>
 
+      {dominantSatelliteClass && (
+        <p className="summary-satellite-context">
+          {t(
+            `satellite.summaryAdditions.${dominantSatelliteClass}`,
+          )}
+        </p>
+      )}
+
       <p className="summary-disclaimer">
         {t("dashboard.summaryDisclaimer")}
       </p>
@@ -598,6 +621,12 @@ export default function AnalysisDashboard({
     assistantExplanation,
     setAssistantExplanation,
   ] = useState(null);
+  const [
+    satelliteContext,
+    setSatelliteContext,
+  ] = useState(null);
+  const point = result?.requested_point;
+  const spatial = result?.spatial_analysis;
   const traffic = result?.live_traffic;
   const score = result?.traffic_score;
   const currentLanguage =
@@ -625,6 +654,9 @@ export default function AnalysisDashboard({
 
           <PDFReportButton
             result={result}
+            satelliteContext={
+              satelliteContext
+            }
             assistantExplanation={
               assistantExplanation?.language
                 === currentLanguage
@@ -643,6 +675,12 @@ export default function AnalysisDashboard({
           congestionIndex={
             traffic?.congestion_index
           }
+          historicalVolumeAvailable={
+            Boolean(
+              score
+                ?.historical_volume_available,
+            )
+          }
           t={t}
           i18n={i18n}
         />
@@ -654,8 +692,31 @@ export default function AnalysisDashboard({
         />
       </div>
 
+      <SatelliteContextCard
+        key={[
+          point?.latitude,
+          point?.longitude,
+          spatial?.radius_meters
+            ?? point?.radius_meters,
+        ].join(":")}
+        latitude={point?.latitude}
+        longitude={point?.longitude}
+        radiusMeters={
+          spatial?.radius_meters
+          ?? point?.radius_meters
+        }
+        onContextChange={
+          setSatelliteContext
+        }
+        t={t}
+        i18n={i18n}
+      />
+
       <LocationSummary
         result={result}
+        satelliteContext={
+          satelliteContext
+        }
         t={t}
         i18n={i18n}
       />
@@ -663,6 +724,9 @@ export default function AnalysisDashboard({
       <AIAssistant
         key={currentLanguage}
         result={result}
+        satelliteContext={
+          satelliteContext
+        }
         t={t}
         i18n={i18n}
         onAnswerChange={

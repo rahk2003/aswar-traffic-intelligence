@@ -40,6 +40,94 @@ class AssistantFactor(BaseModel):
     )
 
 
+class AssistantSatelliteContext(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+
+    acquisition_date: str | None = Field(
+        default=None,
+        max_length=50,
+    )
+    cloud_cover_percentage: float | None = (
+        Field(
+            default=None,
+            ge=0,
+            le=100,
+        )
+    )
+    built_percentage: float | None = (
+        Field(
+            default=None,
+            ge=0,
+            le=100,
+        )
+    )
+    bare_percentage: float | None = (
+        Field(
+            default=None,
+            ge=0,
+            le=100,
+        )
+    )
+    vegetation_percentage: float | None = (
+        Field(
+            default=None,
+            ge=0,
+            le=100,
+        )
+    )
+    water_percentage: float | None = (
+        Field(
+            default=None,
+            ge=0,
+            le=100,
+        )
+    )
+    other_percentage: float | None = (
+        Field(
+            default=None,
+            ge=0,
+            le=100,
+        )
+    )
+    probability_sum_percentage: float | None = (
+        Field(
+            default=None,
+            ge=99.9,
+            le=100.1,
+        )
+    )
+    mean_top_probability_percentage: float | None = (
+        Field(
+            default=None,
+            ge=0,
+            le=100,
+        )
+    )
+    mean_ndvi: float | None = Field(
+        default=None,
+        ge=-1,
+        le=1,
+    )
+    mean_ndbi: float | None = Field(
+        default=None,
+        ge=-1,
+        le=1,
+    )
+    mean_bsi: float | None = Field(
+        default=None,
+        ge=-1,
+        le=1,
+    )
+    analysis_confidence: Literal[
+        "high",
+        "moderate",
+        "low",
+    ] | None = None
+    is_estimated: bool = True
+
+
 class AssistantAnalysis(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -109,6 +197,9 @@ class AssistantAnalysis(BaseModel):
         default_factory=list,
         max_length=6,
     )
+    satellite_context: (
+        AssistantSatelliteContext | None
+    ) = None
 
 
 class AssistantExplainRequest(BaseModel):
@@ -126,6 +217,7 @@ class AssistantExplainRequest(BaseModel):
         "weakest_factor",
         "suitability",
         "improve",
+        "satellite_context",
         "custom",
     ] = "custom"
     language: Literal["ar", "en"]

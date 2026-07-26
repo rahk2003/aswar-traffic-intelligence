@@ -326,6 +326,71 @@ export function getRoadTypeLabel(
 }
 
 
+export function getDominantSatelliteClass(
+  satelliteContext,
+) {
+  if (
+    satelliteContext?.status
+    !== "available"
+  ) {
+    return null;
+  }
+
+  const land =
+    satelliteContext.land_context;
+  const candidates = [
+    {
+      key: "builtUp",
+      value:
+        land
+          ?.built_percentage,
+    },
+    {
+      key: "bareSoil",
+      value:
+        land
+          ?.bare_percentage,
+    },
+    {
+      key: "vegetation",
+      value:
+        land
+          ?.vegetation_percentage,
+    },
+    {
+      key: "water",
+      value:
+        land?.water_percentage,
+    },
+    {
+      key: "other",
+      value:
+        land?.other_percentage,
+    },
+  ].filter(
+    (candidate) =>
+      hasValue(candidate.value)
+      && Number.isFinite(
+        Number(candidate.value),
+      ),
+  );
+
+  if (candidates.length === 0) {
+    return null;
+  }
+
+  const dominant = candidates.reduce(
+    (highest, candidate) => (
+      Number(candidate.value)
+      > Number(highest.value)
+        ? candidate
+        : highest
+      ),
+  );
+  return dominant.key;
+}
+
+
 export function mergeServiceCategories(spatial) {
   const merged = new Map();
 

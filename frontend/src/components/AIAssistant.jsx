@@ -15,6 +15,7 @@ const SUGGESTED_QUESTIONS = [
   "strongest_factor",
   "weakest_factor",
   "suitability",
+  "satellite_context",
   "improve",
 ];
 
@@ -23,6 +24,7 @@ function buildAssistantAnalysis(
   result,
   t,
   isArabic,
+  satelliteContext,
 ) {
   const point = result?.requested_point;
   const spatial = result?.spatial_analysis;
@@ -85,12 +87,76 @@ function buildAssistantAnalysis(
       score: factor.score,
       weight: factor.weight,
     })),
+    satellite_context: (
+      satelliteContext?.status
+      === "available"
+    )
+      ? {
+          acquisition_date:
+            satelliteContext.imagery
+              ?.acquisition_date
+            ?? null,
+          cloud_cover_percentage:
+            satelliteContext.imagery
+              ?.cloud_cover_percentage
+            ?? null,
+          built_percentage:
+            satelliteContext.land_context
+              ?.built_percentage
+            ?? null,
+          bare_percentage:
+            satelliteContext.land_context
+              ?.bare_percentage
+            ?? null,
+          vegetation_percentage:
+            satelliteContext.land_context
+              ?.vegetation_percentage
+            ?? null,
+          water_percentage:
+            satelliteContext.land_context
+              ?.water_percentage
+            ?? null,
+          other_percentage:
+            satelliteContext.land_context
+              ?.other_percentage
+            ?? null,
+          probability_sum_percentage:
+            satelliteContext.land_context
+              ?.probability_sum_percentage
+            ?? null,
+          mean_top_probability_percentage:
+            satelliteContext.quality
+              ?.mean_top_probability_percentage
+            ?? null,
+          mean_ndvi:
+            satelliteContext
+              .spectral_indices
+              ?.mean_ndvi
+            ?? null,
+          mean_ndbi:
+            satelliteContext
+              .spectral_indices
+              ?.mean_ndbi
+            ?? null,
+          mean_bsi:
+            satelliteContext
+              .spectral_indices
+              ?.mean_bsi
+            ?? null,
+          analysis_confidence:
+            satelliteContext.quality
+              ?.analysis_confidence
+            ?? null,
+          is_estimated: true,
+        }
+      : null,
   };
 }
 
 
 export default function AIAssistant({
   result,
+  satelliteContext,
   t,
   i18n,
   onAnswerChange,
@@ -133,6 +199,7 @@ export default function AIAssistant({
               result,
               t,
               language === "ar",
+              satelliteContext,
             ),
         });
 

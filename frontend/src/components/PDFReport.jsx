@@ -7,6 +7,7 @@ import {
   buildEstimatedTrafficActivity,
   formatCoordinate,
   formatNumber,
+  getDominantSatelliteClass,
   getRoadName,
   getRoadTypeLabel,
   getSuitabilityCode,
@@ -66,6 +67,7 @@ function ReportMetric({
 
 export function ReportTemplate({
   result,
+  satelliteContext,
   assistantExplanation,
   generatedAt,
   t,
@@ -109,6 +111,13 @@ export function ReportTemplate({
   const factors = getTrafficFactorData(
     score,
   );
+  const hasSatelliteContext = (
+    satelliteContext?.status
+    === "available"
+  );
+  const totalPages = (
+    hasSatelliteContext ? 4 : 3
+  );
   const activity =
     buildEstimatedTrafficActivity(
       trafficScore,
@@ -128,10 +137,34 @@ export function ReportTemplate({
     new Intl.DateTimeFormat(
       locale,
       {
+        calendar: "gregory",
         dateStyle: "long",
         timeStyle: "short",
       },
     ).format(generatedAt);
+  const satelliteDate = (() => {
+    const rawDate =
+      satelliteContext?.imagery
+        ?.acquisition_date;
+
+    if (!rawDate) {
+      return unavailable;
+    }
+
+    const parsedDate = new Date(rawDate);
+
+    return Number.isNaN(
+      parsedDate.getTime(),
+    )
+      ? unavailable
+      : new Intl.DateTimeFormat(
+          locale,
+          {
+            calendar: "gregory",
+            dateStyle: "medium",
+          },
+        ).format(parsedDate);
+  })();
   const displayNumber = (
     value,
     digits = 0,
@@ -266,7 +299,7 @@ export function ReportTemplate({
         <ReportHeader
           t={t}
           page={1}
-          totalPages={3}
+          totalPages={totalPages}
         />
 
         <div className="pdf-report-content">
@@ -357,7 +390,7 @@ export function ReportTemplate({
         <ReportHeader
           t={t}
           page={2}
-          totalPages={3}
+          totalPages={totalPages}
         />
 
         <div className="pdf-report-content">
@@ -366,7 +399,16 @@ export function ReportTemplate({
           </h2>
           <p className="pdf-report-note">
             {t(
-              "dashboard.trafficActivityNote",
+              score
+                ?.historical_volume_available
+                ? (
+                    "dashboard."
+                    + "trafficActivityNoteWithHistorical"
+                  )
+                : (
+                    "dashboard."
+                    + "trafficActivityNote"
+                  ),
             )}
           </p>
 
@@ -479,7 +521,7 @@ export function ReportTemplate({
         <ReportHeader
           t={t}
           page={3}
-          totalPages={3}
+          totalPages={totalPages}
         />
 
         <div className="pdf-report-content">
@@ -549,6 +591,300 @@ export function ReportTemplate({
 
         <ReportFooter t={t} />
       </section>
+
+      {hasSatelliteContext && (
+        <section className="pdf-report-page">
+          <ReportHeader
+            t={t}
+            page={4}
+            totalPages={totalPages}
+          />
+
+          <div className="pdf-report-content">
+            <h2>{t("report.satelliteTitle")}</h2>
+            <p className="pdf-report-note">
+              {t("report.satelliteEstimated")}
+            </p>
+
+            <div className="pdf-satellite-layout">
+              <div className="pdf-satellite-preview">
+                {satelliteContext.preview_src
+                  ? (
+                      <img
+                        src={
+                          satelliteContext
+                            .preview_src
+                        }
+                        alt={t(
+                          "satellite.imageAlt",
+                        )}
+                        crossOrigin="anonymous"
+                      />
+                    )
+                  : (
+                      <span>
+                        {t(
+                          "satellite.imageUnavailable",
+                        )}
+                      </span>
+                    )}
+              </div>
+
+              <div className="pdf-satellite-land-list">
+                {[
+                  [
+                    "builtUp",
+                    "built_percentage",
+                  ],
+                  [
+                    "bareSoil",
+                    "bare_percentage",
+                  ],
+                  [
+                    "vegetation",
+                    "vegetation_percentage",
+                  ],
+                  [
+                    "water",
+                    "water_percentage",
+                  ],
+                  [
+                    "other",
+                    "other_percentage",
+                  ],
+                ].map(([key, dataKey]) => {
+                  const value =
+                    satelliteContext
+                      .land_context
+                      ?.[dataKey];
+
+                  return (
+                    <div key={key}>
+                      <span>
+                        {t(`satellite.${key}`)}
+                      </span>
+                      <strong>
+                        {hasValue(value)
+                          ? (
+                              displayNumber(
+                                value,
+                                1,
+                              )
+                              + t(
+                                "common.percent",
+                              )
+                            )
+                          : unavailable}
+                      </strong>
+                      <i>
+                        <i
+                          style={{
+                            width: `${
+                              Math.max(
+                                0,
+                                Math.min(
+                                  Number(value)
+                                  || 0,
+                                  100,
+                                ),
+                              )
+                            }%`,
+                          }}
+                        />
+                      </i>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="pdf-report-location-grid">
+              <ReportMetric
+                label={t(
+                  "satellite.acquisitionDate",
+                )}
+                value={satelliteDate}
+              />
+              <ReportMetric
+                label={t(
+                  "satellite.cloudCover",
+                )}
+                value={
+                  hasValue(
+                    satelliteContext
+                      .imagery
+                      ?.cloud_cover_percentage,
+                  )
+                    ? (
+                        displayNumber(
+                          satelliteContext
+                            .imagery
+                            .cloud_cover_percentage,
+                          2,
+                        )
+                        + t(
+                          "common.percent",
+                        )
+                      )
+                    : unavailable
+                }
+              />
+              <ReportMetric
+                label={t(
+                  "satellite.resolution",
+                )}
+                value={formatWithUnit(
+                  satelliteContext
+                    .imagery
+                    ?.resolution_meters,
+                  t("common.meters"),
+                )}
+              />
+              <ReportMetric
+                label={t(
+                  "satellite.confidence",
+                )}
+                value={
+                  satelliteContext
+                    .quality
+                    ?.analysis_confidence
+                    ? t(
+                        `satellite.confidence${
+                          satelliteContext
+                            .quality
+                            .analysis_confidence
+                            .charAt(0)
+                            .toUpperCase()
+                          + satelliteContext
+                            .quality
+                            .analysis_confidence
+                            .slice(1)
+                        }`,
+                      )
+                    : unavailable
+                }
+              />
+              <ReportMetric
+                label={t(
+                  "satellite.meanTopProbability",
+                )}
+                value={
+                  hasValue(
+                    satelliteContext
+                      .quality
+                      ?.mean_top_probability_percentage,
+                  )
+                    ? (
+                        displayNumber(
+                          satelliteContext
+                            .quality
+                            .mean_top_probability_percentage,
+                          1,
+                        )
+                        + t(
+                          "common.percent",
+                        )
+                      )
+                    : unavailable
+                }
+              />
+              <ReportMetric
+                label={t(
+                  "satellite.probabilityTotal",
+                )}
+                value={
+                  hasValue(
+                    satelliteContext
+                      .land_context
+                      ?.probability_sum_percentage,
+                  )
+                    ? (
+                        displayNumber(
+                          satelliteContext
+                            .land_context
+                            .probability_sum_percentage,
+                          1,
+                        )
+                        + t(
+                          "common.percent",
+                        )
+                      )
+                    : unavailable
+                }
+              />
+            </div>
+
+            <div className="pdf-report-summary">
+              <strong>
+                {t("satellite.contextSummary")}
+              </strong>
+              <p>
+                {t(
+                  `satellite.summaries.${
+                    getDominantSatelliteClass(
+                      satelliteContext,
+                    )
+                    || "unavailable"
+                  }`,
+                )}
+              </p>
+            </div>
+
+            <p className="pdf-report-paragraph">
+              {t(
+                "report.satelliteMethodology",
+              )}
+            </p>
+
+            <div className="pdf-report-source-list">
+              <p>
+                {t("satellite.source")}:{" "}
+                {
+                  satelliteContext.source
+                    ?.provider
+                  || unavailable
+                } — {
+                  satelliteContext.source
+                    ?.dataset
+                  || unavailable
+                }
+              </p>
+              <p>
+                {t(
+                  "satellite.supportingSource",
+                )}:{" "}
+                {
+                  satelliteContext.source
+                    ?.supporting_provider
+                  || unavailable
+                } — {
+                  satelliteContext.source
+                    ?.supporting_dataset
+                  || unavailable
+                }
+              </p>
+            </div>
+
+            <div className="pdf-report-disclaimer">
+              <strong>
+                {t("report.disclaimerTitle")}
+              </strong>
+              <p>
+                {t(
+                  "satellite.aridEnvironmentWarning",
+                )}
+              </p>
+              <p>
+                {t(
+                  "satellite.trafficScoreNote",
+                )}
+              </p>
+            </div>
+          </div>
+
+          <ReportFooter t={t} />
+        </section>
+      )}
     </div>
   );
 }
@@ -562,9 +898,55 @@ function waitForNextPaint() {
   });
 }
 
+function waitForReportImages(root) {
+  const images = Array.from(
+    root?.querySelectorAll("img")
+    || [],
+  );
+
+  return Promise.all(
+    images.map((reportImage) => {
+      if (reportImage.complete) {
+        return Promise.resolve();
+      }
+
+      return new Promise((resolve) => {
+        let settled = false;
+        const finish = () => {
+          if (settled) {
+            return;
+          }
+
+          settled = true;
+          reportImage.removeEventListener(
+            "load",
+            finish,
+          );
+          reportImage.removeEventListener(
+            "error",
+            finish,
+          );
+          resolve();
+        };
+
+        reportImage.addEventListener(
+          "load",
+          finish,
+        );
+        reportImage.addEventListener(
+          "error",
+          finish,
+        );
+        window.setTimeout(finish, 5000);
+      });
+    }),
+  );
+}
+
 
 export default function PDFReportButton({
   result,
+  satelliteContext,
   assistantExplanation,
   t,
   i18n,
@@ -595,6 +977,9 @@ export default function PDFReportButton({
     try {
       await waitForNextPaint();
       await document.fonts?.ready;
+      await waitForReportImages(
+        reportRef.current,
+      );
 
       const [
         { jsPDF },
@@ -760,6 +1145,9 @@ export default function PDFReportButton({
         >
           <ReportTemplate
             result={result}
+            satelliteContext={
+              satelliteContext
+            }
             assistantExplanation={
               assistantExplanation
             }

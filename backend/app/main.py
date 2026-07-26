@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.routes.assistant import router as assistant_router
 from app.routes.locations import router as locations_router
+from app.routes.satellite import router as satellite_router
 
 
 app = FastAPI(
@@ -29,6 +30,7 @@ app.add_middleware(
 
 app.include_router(locations_router)
 app.include_router(assistant_router)
+app.include_router(satellite_router)
 
 
 @app.get("/")

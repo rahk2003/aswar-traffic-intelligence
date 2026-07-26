@@ -1,3 +1,16 @@
 .app {
   min-height: 100vh;
+  padding-top: 110px;
+}
+
+@media (max-width: 860px) {
+  .app {
+    padding-top: 156px;
+  }
+}
+
+@media (max-width: 620px) {
+  .app {
+    padding-top: 146px;
+  }
 }

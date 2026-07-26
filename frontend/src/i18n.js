@@ -266,6 +266,8 @@ const resources = {
           "النشاط المروري التقديري خلال اليوم",
         trafficActivityNote:
           "منحنى تقديري مبني على درجة الموقع والازدحام الحالي، ولا يمثل عددًا فعليًا أو رسميًا للمركبات.",
+        trafficActivityNoteWithHistorical:
+          "يستفيد التقييم من إجمالي العد الفعلي للمركبات خلال ٢٤ ساعة، أما توزيع النشاط على ساعات اليوم في هذا المنحنى فهو تقديري لعدم توفر قراءات منفصلة لكل ساعة.",
         estimatedData: "بيانات تقديرية",
         activityIndex: "مؤشر النشاط",
         activityScale:
@@ -352,11 +354,110 @@ const resources = {
         mapSummary: "ملخص الموقع على الخريطة",
       },
 
+      satellite: {
+        title: "تحليل صور الأقمار الصناعية للموقع",
+        description:
+          "تصنيف احتمالي لطبيعة سطح الأرض داخل نطاق التحليل باستخدام نموذج Dynamic World المدرّب على صور Sentinel-2.",
+        loading:
+          "جارٍ جلب صورة Sentinel-2 وحساب احتمالات Dynamic World داخل نطاق الموقع…",
+        retry: "إعادة المحاولة",
+        notConfiguredTitle:
+          "تحليل الأقمار الصناعية غير مفعّل",
+        notConfigured:
+          "يمكن تفعيل هذه الطبقة بإضافة إعدادات Copernicus وGoogle Earth Engine إلى الخادم.",
+        noImageryTitle:
+          "لا توجد صورة مناسبة حاليًا",
+        noImagery:
+          "لم تتوفر صورة حديثة ضمن حد الغيوم المحدد. يمكنك إعادة المحاولة لاحقًا.",
+        temporarilyUnavailableTitle:
+          "تعذر جلب بيانات الأقمار الصناعية",
+        temporarilyUnavailable:
+          "خدمة صور الأقمار الصناعية غير متاحة مؤقتًا. لم تتأثر نتيجة التحليل الأساسية.",
+        imageAlt:
+          "صورة بألوان طبيعية لنطاق الموقع من القمر الصناعي Sentinel-2",
+        imageUnavailable:
+          "تعذر عرض معاينة الصورة",
+        trueColor: "صورة بألوان طبيعية",
+        trueColorWithResolution:
+          "ألوان طبيعية • دقة {{resolution}} م",
+        previewResolutionNote:
+          "مناسبة لفهم السياق العام للمنطقة، وليست لإظهار التفاصيل الدقيقة للمباني؛ دقة Sentinel-2 الأصلية ١٠ أمتار.",
+        builtUp: "متوسط احتمال المناطق المبنية",
+        bareSoil:
+          "متوسط احتمال التربة أو الأرض المكشوفة",
+        vegetation:
+          "متوسط احتمال الغطاء النباتي",
+        water: "متوسط احتمال المياه",
+        other:
+          "متوسط احتمال الثلوج أو الجليد",
+        acquisitionDate: "تاريخ صورة Sentinel-2",
+        classificationDate:
+          "تاريخ تصنيف Dynamic World",
+        cloudCover: "نسبة الغيوم في المشهد",
+        resolution: "الدقة المكانية",
+        confidence: "موثوقية التحليل",
+        meanTopProbability:
+          "متوسط احتمال الفئة الأعلى",
+        probabilityTotal:
+          "مجموع متوسطات الاحتمالات",
+        confidenceHigh: "مرتفعة",
+        confidenceModerate: "متوسطة",
+        confidenceLow: "منخفضة",
+        validPixels: "البكسلات الصالحة للتحليل",
+        indices: "المؤشرات الطيفية المساندة",
+        contextSummary: "قراءة سياق الموقع",
+        summaries: {
+          builtUp:
+            "يعطي نموذج Dynamic World أعلى متوسط احتمال للمناطق المبنية داخل النطاق.",
+          bareSoil:
+            "يعطي نموذج Dynamic World أعلى متوسط احتمال للتربة أو الأرض المكشوفة داخل النطاق.",
+          vegetation:
+            "يعطي نموذج Dynamic World أعلى متوسط احتمال للغطاء النباتي داخل النطاق.",
+          water:
+            "يعطي نموذج Dynamic World أعلى متوسط احتمال للمياه داخل النطاق.",
+          other:
+            "يعطي نموذج Dynamic World أعلى متوسط احتمال للثلوج أو الجليد داخل النطاق.",
+          unavailable:
+            "لا تتوفر بكسلات صالحة كافية لتحديد السياق الغالب.",
+        },
+        summaryAdditions: {
+          builtUp:
+            "ويعطي Dynamic World أعلى متوسط احتمال للمناطق المبنية داخل النطاق.",
+          bareSoil:
+            "ويعطي Dynamic World أعلى متوسط احتمال للتربة أو الأرض المكشوفة داخل النطاق.",
+          vegetation:
+            "ويعطي Dynamic World أعلى متوسط احتمال للغطاء النباتي داخل النطاق.",
+          water:
+            "ويعطي Dynamic World أعلى متوسط احتمال للمياه داخل النطاق.",
+          other:
+            "ويعطي Dynamic World أعلى متوسط احتمال للثلوج أو الجليد داخل النطاق.",
+        },
+        confidenceLimitations:
+          "أسباب انخفاض موثوقية التصنيف",
+        limitations: {
+          distributedProbabilities:
+            "توزعت احتمالات Dynamic World على أكثر من فئة لسطح الأرض، مما خفّض موثوقية التصنيف.",
+          lowValidPixels:
+            "أدى انخفاض تغطية البكسلات الصالحة في Dynamic World إلى خفض موثوقية التصنيف.",
+          differentDate:
+            "استُخدمت أقرب نتيجة Dynamic World متاحة لأن تاريخها لم يطابق تاريخ صورة Sentinel-2 المعروضة تمامًا.",
+          multipleFactors:
+            "أدت عدة عوامل مرتبطة بجودة Dynamic World إلى خفض موثوقية التصنيف.",
+        },
+        aridEnvironmentWarning:
+          "يعتمد التصنيف الرئيسي على متوسط حزم الاحتمال في Dynamic World. تُعرض NDVI وNDBI وBSI كمؤشرات مساندة فقط وليست أساس النسب.",
+        source: "مصدر التصنيف الرئيسي",
+        supportingSource:
+          "مصدر الصورة والمؤشرات المساندة",
+        trafficScoreNote:
+          "هذه الطبقة سياق إضافي مستقل، ولا تدخل في حساب درجة الحركة المرورية ولا تمثل عدد المركبات.",
+      },
+
       assistant: {
         kicker: "تفسير النتيجة",
         title: "المساعد الذكي",
         description:
-          "اسأل عن نتيجة هذا الموقع الحالية. يستخدم المساعد الدرجة والعوامل الظاهرة فقط ولا يغيّر طريقة الحساب.",
+          "اسأل عن الدرجة أو المرور أو الطرق والخدمات أو صورة القمر الصناعي. يجيب المساعد من بيانات الموقع الحالية ولا يغيّر الحساب.",
         suggestionsLabel: "أسئلة مقترحة",
         questions: {
           why_score:
@@ -367,6 +468,8 @@ const resources = {
             "ما العامل الأضعف؟",
           suitability:
             "هل الموقع مناسب للإعلان؟",
+          satellite_context:
+            "ماذا توضح صورة القمر الصناعي عن سياق الموقع؟",
           improve:
             "كيف يمكن تحسين دقة التقييم؟",
         },
@@ -399,6 +502,12 @@ const resources = {
           "تقرير آلي مبني على نتيجة التحليل الحالية",
         level: "تصنيف النشاط",
         locationDetails: "بيانات الموقع والنطاق",
+        satelliteTitle:
+          "سياق الموقع من القمر الصناعي",
+        satelliteMethodology:
+          "النسب هي متوسط حزم الاحتمال لنموذج Dynamic World داخل نطاق الموقع بدقة ١٠ أمتار. جُمعت الأشجار والعشب والنباتات المغمورة والمحاصيل والشجيرات ضمن الغطاء النباتي، بينما تظهر NDVI وNDBI وBSI كمؤشرات مساندة فقط. لا تدخل هذه الطبقة في حساب درجة الحركة المرورية.",
+        satelliteEstimated:
+          "متوسط احتمالات فئات سطح الأرض داخل نطاق التحليل",
         finalSummary: "الملخص النهائي",
         assistantExplanation:
           "تفسير سبب الدرجة",
@@ -445,7 +554,7 @@ const resources = {
 
       compare: {
         eyebrow: "مقارنة المواقع",
-        title: "قارن فرصتين إعلانيتين على الخريطة",
+        title: "قارن بين موقعين على الخريطة",
         description:
           "حدد موقعين فعليين، ثم حللهما بالتوازي لمقارنة درجة الحركة المرورية والسياق المكاني لكلٍ منهما.",
         mapTitle: "حدد الموقعين",
@@ -681,6 +790,8 @@ const resources = {
           "Estimated Traffic Activity During the Day",
         trafficActivityNote:
           "This estimated curve is derived from the site score and current congestion. It is not an actual or official vehicle count.",
+        trafficActivityNoteWithHistorical:
+          "The assessment uses the actual 24-hour vehicle total. Its distribution across the hours shown in this curve remains estimated because separate hourly readings are not available.",
         estimatedData: "Estimated data",
         activityIndex: "Activity index",
         activityScale:
@@ -769,11 +880,111 @@ const resources = {
         mapSummary: "Map location summary",
       },
 
+      satellite: {
+        title: "Satellite Context Analysis",
+        description:
+          "A probability-based land-cover classification within the analysis radius using the Dynamic World model trained on Sentinel-2 imagery.",
+        loading:
+          "Retrieving Sentinel-2 imagery and averaging Dynamic World probabilities within the location radius…",
+        retry: "Try again",
+        notConfiguredTitle:
+          "Satellite analysis is not enabled",
+        notConfigured:
+          "This layer can be enabled by adding Copernicus and Google Earth Engine settings to the backend.",
+        noImageryTitle:
+          "No suitable imagery is currently available",
+        noImagery:
+          "No recent image met the configured cloud-cover limit. You can try again later.",
+        temporarilyUnavailableTitle:
+          "Satellite context could not be retrieved",
+        temporarilyUnavailable:
+          "The satellite service is temporarily unavailable. The main location result was not affected.",
+        imageAlt:
+          "Sentinel-2 true-color satellite image of the analysis area",
+        imageUnavailable:
+          "The image preview could not be displayed",
+        trueColor: "True-color image",
+        trueColorWithResolution:
+          "Natural color • {{resolution}} m resolution",
+        previewResolutionNote:
+          "Suitable for understanding the area's general context, not fine building detail; Sentinel-2's native resolution is 10 meters.",
+        builtUp: "Mean built probability",
+        bareSoil:
+          "Mean bare-ground probability",
+        vegetation:
+          "Mean vegetation probability",
+        water: "Mean water probability",
+        other:
+          "Mean snow-or-ice probability",
+        acquisitionDate:
+          "Sentinel-2 image date",
+        classificationDate:
+          "Dynamic World classification date",
+        cloudCover: "Scene cloud cover",
+        resolution: "Spatial resolution",
+        confidence: "Analysis confidence",
+        meanTopProbability:
+          "Mean top-class probability",
+        probabilityTotal:
+          "Probability mean total",
+        confidenceHigh: "High",
+        confidenceModerate: "Moderate",
+        confidenceLow: "Low",
+        validPixels: "Valid analyzed pixels",
+        indices: "Supporting spectral indices",
+        contextSummary: "Location context reading",
+        summaries: {
+          builtUp:
+            "Dynamic World gives built area the highest mean probability within the radius.",
+          bareSoil:
+            "Dynamic World gives bare ground the highest mean probability within the radius.",
+          vegetation:
+            "Dynamic World gives vegetation the highest mean probability within the radius.",
+          water:
+            "Dynamic World gives water the highest mean probability within the radius.",
+          other:
+            "Dynamic World gives snow or ice the highest mean probability within the radius.",
+          unavailable:
+            "There are not enough valid pixels to identify the dominant context.",
+        },
+        summaryAdditions: {
+          builtUp:
+            "Dynamic World gives built area the highest mean probability within the selected radius.",
+          bareSoil:
+            "Dynamic World gives bare ground the highest mean probability within the selected radius.",
+          vegetation:
+            "Dynamic World gives vegetation the highest mean probability within the selected radius.",
+          water:
+            "Dynamic World gives water the highest mean probability within the selected radius.",
+          other:
+            "Dynamic World gives snow or ice the highest mean probability within the selected radius.",
+        },
+        confidenceLimitations:
+          "Reasons for reduced classification confidence",
+        limitations: {
+          distributedProbabilities:
+            "Dynamic World probabilities are spread across multiple land-cover classes, reducing classification confidence.",
+          lowValidPixels:
+            "Low Dynamic World valid-pixel coverage reduced classification confidence.",
+          differentDate:
+            "The nearest available Dynamic World result was used because its date did not exactly match the displayed Sentinel-2 image.",
+          multipleFactors:
+            "Multiple Dynamic World quality factors reduced classification confidence.",
+        },
+        aridEnvironmentWarning:
+          "The primary classification uses mean Dynamic World probability bands. NDVI, NDBI, and BSI are displayed only as supporting indicators and do not determine the percentages.",
+        source: "Primary classification source",
+        supportingSource:
+          "Preview and supporting-index source",
+        trafficScoreNote:
+          "This is an independent context layer. It does not affect the Traffic Score and does not represent vehicle counts.",
+      },
+
       assistant: {
         kicker: "Result explanation",
         title: "AI Assistant",
         description:
-          "Ask about this location's current result. The assistant uses only the displayed score and factors and does not change the calculation.",
+          "Ask about the score, traffic, roads and services, or the satellite image. The assistant answers from the current location data without changing the calculation.",
         suggestionsLabel: "Suggested questions",
         questions: {
           why_score:
@@ -784,6 +995,8 @@ const resources = {
             "What is the weakest factor?",
           suitability:
             "Is the location suitable for advertising?",
+          satellite_context:
+            "What does the satellite image show about this location?",
           improve:
             "How can assessment accuracy be improved?",
         },
@@ -818,6 +1031,12 @@ const resources = {
         level: "Activity classification",
         locationDetails:
           "Location and analysis area",
+        satelliteTitle:
+          "Satellite location context",
+        satelliteMethodology:
+          "Percentages are mean Dynamic World probability-band values within the location radius at 10-meter scale. Trees, grass, flooded vegetation, crops, and shrub and scrub are combined as vegetation; NDVI, NDBI, and BSI are supporting indicators only. This layer does not affect the Traffic Score.",
+        satelliteEstimated:
+          "Mean land-cover class probabilities within the analysis radius",
         finalSummary: "Final summary",
         assistantExplanation:
           "Explanation of the score",
@@ -927,7 +1146,7 @@ const resources = {
 
       compare: {
         eyebrow: "Location comparison",
-        title: "Compare Two Advertising Opportunities",
+        title: "Compare Two Locations on the Map",
         description:
           "Select two real map points, then analyze them in parallel to compare Traffic Score and spatial context.",
         mapTitle: "Select both locations",

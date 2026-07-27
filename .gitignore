@@ -19,3 +19,7 @@ frontend/dist/
 *.backup
 *.before-*
 backend/secrets/
+
+# Virtual environments and test cache
+.venv/
+.pytest_cache/

@@ -162,7 +162,7 @@ const resources = {
           "تصور تحليلي لشبكة طرق في الرياض ولوحة إعلانية ومؤشرات حركة المرور",
         scoreRangeLabel: "درجة الحركة المرورية",
         scoreRangeNote: "قراءة موحّدة للموقع",
-        liveContext: "سياق مروري مباشر",
+        liveContext: "حالة المرور الآن",
         featuresEyebrow: "ذكاء المواقع الإعلانية",
         featuresTitle:
           "المؤشرات الأهم في شاشة تحليل واحدة",
@@ -170,7 +170,7 @@ const resources = {
           "من اختيار النقطة إلى تفسير النتيجة، تعرض المنصة بيانات المكان كما تصل من مصادرها الفعلية دون قيم تجريبية.",
         features: {
           live: {
-            title: "سياق مروري مباشر",
+            title: "حالة المرور الآن",
             text:
               "قراءة السرعة الحالية والانسياب الحر ونسبة الازدحام عبر بيانات TomTom.",
           },
@@ -185,16 +185,43 @@ const resources = {
               "تحليل موقعين بالتوازي وعرض الفروق التي تدعم قرار الإعلان الخارجي.",
           },
         },
+        intelligenceEyebrow: "أدوات تساعدك على فهم النتيجة",
+        intelligenceTitle:
+          "صورة أقمار صناعية وتفسير ذكي لكل موقع",
+        intelligenceDescription:
+          "بعد حساب مؤشرات الطرق والمرور، تضيف المنصة تحليلًا لطبيعة المنطقة ومساعدًا يشرح ما تعنيه النتيجة لقرار الإعلان.",
+        satelliteBadge: "تحليل صور الأقمار الصناعية",
+        satelliteTitle:
+          "افهم طبيعة المنطقة المحيطة بالموقع",
+        satelliteDescription:
+          "تعرض المنصة صورة حديثة من Sentinel-2، ثم تحلل طبيعة سطح الأرض داخل النطاق المختار.",
+        satelliteImage:
+          "صورة بألوان طبيعية من أقمار Sentinel-2 التابعة لبرنامج Copernicus.",
+        satelliteModel:
+          "نموذج Dynamic World يقدّر نسب المباني والتربة والغطاء النباتي والمياه.",
+        satelliteEngine:
+          "تُحسب النسب داخل الخادم باستخدام Google Earth Engine بدقة مكانية تبلغ 10 أمتار.",
+        assistantBadge: "المساعد الذكي",
+        assistantTitle:
+          "اسأل عن ملاءمة الموقع وأسباب النتيجة",
+        assistantDescription:
+          "يقرأ المساعد بيانات الموقع الحالية ويحوّل الأرقام والمؤشرات إلى تفسير واضح ومباشر.",
+        assistantSuitability:
+          "يوضح هل المؤشرات تدعم ملاءمة الموقع للإعلان ولماذا.",
+        assistantFactors:
+          "يشرح أقوى العوامل وأضعفها وكيف يمكن تحسين دقة التقييم.",
+        assistantScope:
+          "يعتمد على نتيجة الموقع المعروضة ولا يغيّر درجة الحركة أو طريقة حسابها.",
         methodEyebrow: "منهجية التحليل",
-        methodTitle: "ثلاث طبقات، وقراءة واحدة",
+        methodTitle: "مصادر واضحة، ولكل مصدر دور محدد",
         methodDescription:
-          "تجمع المنصة بين السياق المكاني والحالة المرورية ثم تعرضهما ضمن درجة موحّدة من الخادم.",
+          "تُبنى درجة الحركة من بيانات الطرق والمرور. ويُعرض تحليل الأقمار الصناعية والمساعد كطبقتين للتفسير، من دون تغيير الدرجة.",
         methodOsm: "شبكة الطرق والخدمات",
         methodTomtom: "حالة المرور الحالية",
         methodScore: "نتيجة من 100",
         ctaEyebrow: "ابدأ من موقع فعلي",
         ctaTitle:
-          "اختر نقطة على الخريطة واكتشف سياقها المروري والمكاني.",
+          "اختر نقطة على الخريطة واعرف حركة المرور وكثافة الطرق والخدمات القريبة منها.",
       },
 
       map: {
@@ -689,7 +716,7 @@ const resources = {
           "Analytical view of Riyadh roads, a roadside billboard, and traffic indicators",
         scoreRangeLabel: "Traffic Score",
         scoreRangeNote: "One consistent site reading",
-        liveContext: "Live traffic context",
+        liveContext: "Traffic conditions now",
         featuresEyebrow: "Advertising location intelligence",
         featuresTitle:
           "The signals that matter, in one analytical view",
@@ -697,7 +724,7 @@ const resources = {
           "From selecting a point to interpreting the result, the platform displays data returned by its real sources without demo values.",
         features: {
           live: {
-            title: "Real-time traffic context",
+            title: "Current traffic conditions",
             text:
               "Read current speed, free-flow speed, and congestion using TomTom traffic data.",
           },
@@ -712,16 +739,45 @@ const resources = {
               "Analyze two sites in parallel and see the differences that support an outdoor advertising decision.",
           },
         },
+        intelligenceEyebrow:
+          "Tools that help explain the result",
+        intelligenceTitle:
+          "Satellite imagery and an intelligent explanation for every site",
+        intelligenceDescription:
+          "After calculating road and traffic indicators, the platform adds a view of the surrounding land and an assistant that explains what the result means for an advertising decision.",
+        satelliteBadge: "Satellite image analysis",
+        satelliteTitle:
+          "Understand the area surrounding the site",
+        satelliteDescription:
+          "The platform displays recent Sentinel-2 imagery, then analyzes land cover inside the selected radius.",
+        satelliteImage:
+          "A natural-color image from the Copernicus Sentinel-2 satellites.",
+        satelliteModel:
+          "Dynamic World estimates the share of built area, bare ground, vegetation, and water.",
+        satelliteEngine:
+          "Probabilities are calculated on the backend with Google Earth Engine at 10-meter spatial resolution.",
+        assistantBadge: "Intelligent assistant",
+        assistantTitle:
+          "Ask about site suitability and the reasons behind the result",
+        assistantDescription:
+          "The assistant reads the current site data and turns its numbers and indicators into a direct explanation.",
+        assistantSuitability:
+          "Explains whether the indicators support advertising suitability and why.",
+        assistantFactors:
+          "Identifies the strongest and weakest factors and ways to improve assessment quality.",
+        assistantScope:
+          "Uses the displayed result without changing the Traffic Score or its calculation.",
         methodEyebrow: "Analysis methodology",
-        methodTitle: "Three layers, one clear reading",
+        methodTitle:
+          "Clear sources, each with a defined role",
         methodDescription:
-          "The platform combines spatial context and live traffic, then presents the score calculated by the backend.",
+          "Road and traffic data build the Traffic Score. Satellite analysis and the assistant are explanatory layers and do not change that score.",
         methodOsm: "Roads and nearby services",
         methodTomtom: "Current traffic conditions",
         methodScore: "A result out of 100",
         ctaEyebrow: "Start with a real location",
         ctaTitle:
-          "Choose a point on the map and understand its traffic and spatial context.",
+          "Choose a point on the map and see its traffic conditions, road density, and nearby services.",
       },
 
       map: {

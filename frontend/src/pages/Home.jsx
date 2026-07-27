@@ -110,6 +110,72 @@ function Home() {
         </div>
       </section>
 
+      <section className="section intelligence-section">
+        <div className="section-heading">
+          <span className="eyebrow">
+            {t("home.intelligenceEyebrow")}
+          </span>
+          <h2>{t("home.intelligenceTitle")}</h2>
+          <p>{t("home.intelligenceDescription")}</p>
+        </div>
+
+        <div className="intelligence-grid">
+          <article className="intelligence-card intelligence-card--satellite">
+            <div className="intelligence-card-heading">
+              <span
+                className="intelligence-symbol"
+                aria-hidden="true"
+              >
+                ◉
+              </span>
+              <div>
+                <small>
+                  {t("home.satelliteBadge")}
+                </small>
+                <h3>
+                  {t("home.satelliteTitle")}
+                </h3>
+              </div>
+            </div>
+
+            <p>{t("home.satelliteDescription")}</p>
+
+            <ul>
+              <li>{t("home.satelliteImage")}</li>
+              <li>{t("home.satelliteModel")}</li>
+              <li>{t("home.satelliteEngine")}</li>
+            </ul>
+          </article>
+
+          <article className="intelligence-card intelligence-card--assistant">
+            <div className="intelligence-card-heading">
+              <span
+                className="intelligence-symbol"
+                aria-hidden="true"
+              >
+                AI
+              </span>
+              <div>
+                <small>
+                  {t("home.assistantBadge")}
+                </small>
+                <h3>
+                  {t("home.assistantTitle")}
+                </h3>
+              </div>
+            </div>
+
+            <p>{t("home.assistantDescription")}</p>
+
+            <ul>
+              <li>{t("home.assistantSuitability")}</li>
+              <li>{t("home.assistantFactors")}</li>
+              <li>{t("home.assistantScope")}</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
       <section className="section methodology-section">
         <div>
           <span className="eyebrow">

@@ -7,7 +7,7 @@ from pathlib import Path
 import httpx
 
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 OUTPUT_DIR = BASE_DIR / "data" / "raw"
 
 # Public Overpass API servers.

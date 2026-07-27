@@ -471,3 +471,15 @@ export function DataWarnings({
     </div>
   );
 }
+
+
+export function DemoBadge({ t }) {
+  return (
+    <span
+      className="demo-badge"
+      title={t("system.demoDescription")}
+    >
+      {t("system.demoBadge")}
+    </span>
+  );
+}

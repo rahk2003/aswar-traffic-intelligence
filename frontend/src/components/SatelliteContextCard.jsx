@@ -46,6 +46,8 @@ const LIMITATION_TRANSLATION_KEYS = {
     "differentDate",
   "Multiple Dynamic World quality factors reduced classification confidence.":
     "multipleFactors",
+  "This is a saved Demo Mode example, not a live Earth Engine classification.":
+    "demoSample",
 };
 
 function formatAcquisitionDate(
@@ -202,7 +204,10 @@ export default function SatelliteContextCard({
         setRequestStatus(result.status);
 
         if (
-          result.status === "available"
+          (
+            result.status === "available"
+            || result.status === "demo"
+          )
         ) {
           const contextWithPreview = {
             ...result,
@@ -308,13 +313,16 @@ export default function SatelliteContextCard({
 
   return (
     <article
+      id="satellite-context"
       className="satellite-card"
       aria-labelledby="satellite-title"
     >
       <div className="satellite-heading">
         <div>
           <span className="dashboard-card-kicker">
-            Google Dynamic World
+            {satelliteContext?.is_demo
+              ? t("system.demoTitle")
+              : "Google Dynamic World"}
           </span>
           <h3 id="satellite-title">
             {t("satellite.title")}
@@ -330,12 +338,24 @@ export default function SatelliteContextCard({
         </span>
       </div>
 
+      {satelliteContext?.is_demo && (
+        <div className="satellite-demo-notice">
+          <span className="demo-badge">
+            {t("system.demoBadge")}
+          </span>
+          <span>
+            {t("satellite.demoNotice")}
+          </span>
+        </div>
+      )}
+
       {requestStatus === "loading" && (
         <SatelliteLoading t={t} />
       )}
 
       {requestStatus !== "loading"
         && requestStatus !== "available"
+        && requestStatus !== "demo"
         && (
           <SatelliteStatus
             status={requestStatus}
@@ -345,7 +365,10 @@ export default function SatelliteContextCard({
         )}
 
       {(
-        requestStatus === "available"
+        (
+          requestStatus === "available"
+          || requestStatus === "demo"
+        )
         && satelliteContext
       ) && (
         <>

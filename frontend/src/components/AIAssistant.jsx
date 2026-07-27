@@ -1,4 +1,9 @@
-import { useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import {
   explainAnalysis,
@@ -34,6 +39,16 @@ function buildAssistantAnalysis(
     getTrafficLevelCode(score);
 
   return {
+    data_mode:
+      result?.data_mode
+      ?? (
+        result?.is_demo
+          ? "demo"
+          : "live"
+      ),
+    is_demo: Boolean(
+      result?.is_demo
+    ),
     latitude:
       point?.latitude ?? null,
     longitude:
@@ -88,8 +103,12 @@ function buildAssistantAnalysis(
       weight: factor.weight,
     })),
     satellite_context: (
-      satelliteContext?.status
-      === "available"
+      (
+        satelliteContext?.status
+        === "available"
+        || satelliteContext?.status
+        === "demo"
+      )
     )
       ? {
           acquisition_date:
@@ -171,59 +190,111 @@ export default function AIAssistant({
     useState(false);
   const [errorMessage, setErrorMessage] =
     useState("");
+  const automaticRequestRef =
+    useRef("");
   const language =
     i18n.language.startsWith("ar")
       ? "ar"
       : "en";
 
 
-  async function askAssistant(requestData) {
+  const askAssistant = useCallback(
+    async (requestData) => {
+      if (
+        isLoading
+        || !requestData.question.trim()
+      ) {
+        return;
+      }
+
+      setIsLoading(true);
+      setErrorMessage("");
+      setLastRequest(requestData);
+
+      try {
+        const response =
+          await explainAnalysis({
+            ...requestData,
+            language,
+            analysis:
+              buildAssistantAnalysis(
+                result,
+                t,
+                language === "ar",
+                satelliteContext,
+              ),
+          });
+
+        const nextExchange = {
+          question: requestData.question,
+          answer: response.answer,
+          source: response.source,
+          fallbackUsed:
+            response.fallback_used,
+        };
+
+        setExchange(nextExchange);
+        onAnswerChange?.({
+          language,
+          text: response.answer,
+        });
+      } catch {
+        setErrorMessage(
+          t("assistant.error"),
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [
+      isLoading,
+      language,
+      onAnswerChange,
+      result,
+      satelliteContext,
+      t,
+    ],
+  );
+
+
+  useEffect(() => {
     if (
-      isLoading
-      || !requestData.question.trim()
+      !result?.is_demo
+      || satelliteContext?.status !== "demo"
     ) {
       return;
     }
 
-    setIsLoading(true);
-    setErrorMessage("");
-    setLastRequest(requestData);
+    const point = result?.requested_point;
+    const requestKey = [
+      point?.latitude,
+      point?.longitude,
+      point?.radius_meters,
+      language,
+    ].join(":");
 
-    try {
-      const response =
-        await explainAnalysis({
-          ...requestData,
-          language,
-          analysis:
-            buildAssistantAnalysis(
-              result,
-              t,
-              language === "ar",
-              satelliteContext,
-            ),
-        });
-
-      const nextExchange = {
-        question: requestData.question,
-        answer: response.answer,
-        source: response.source,
-        fallbackUsed:
-          response.fallback_used,
-      };
-
-      setExchange(nextExchange);
-      onAnswerChange?.({
-        language,
-        text: response.answer,
-      });
-    } catch {
-      setErrorMessage(
-        t("assistant.error"),
-      );
-    } finally {
-      setIsLoading(false);
+    if (
+      automaticRequestRef.current
+      === requestKey
+    ) {
+      return;
     }
-  }
+
+    automaticRequestRef.current =
+      requestKey;
+    askAssistant({
+      question: t(
+        "assistant.questions.why_score",
+      ),
+      questionType: "why_score",
+    });
+  }, [
+    askAssistant,
+    language,
+    result,
+    satelliteContext?.status,
+    t,
+  ]);
 
 
   function handleSuggestion(
@@ -259,6 +330,7 @@ export default function AIAssistant({
 
   return (
     <article
+      id="ai-assistant"
       className="assistant-card"
       aria-labelledby="assistant-title"
     >
@@ -279,6 +351,18 @@ export default function AIAssistant({
           AI
         </span>
       </div>
+
+      {result?.is_demo && (
+        <div
+          className="assistant-demo-notice"
+          role="note"
+        >
+          <span className="demo-badge">
+            {t("system.demoBadge")}
+          </span>
+          <span>{t("assistant.demoNotice")}</span>
+        </div>
+      )}
 
       <p className="assistant-description">
         {t("assistant.description")}

@@ -260,7 +260,9 @@ export function formatCoordinate(value) {
 
 export function getErrorMessage(error, t) {
   if (error?.code === "NETWORK_ERROR") {
-    return t("errors.network");
+    return t(
+      "errors.backendUnavailable",
+    );
   }
 
   if (error?.code === "TIMEOUT") {
@@ -268,7 +270,16 @@ export function getErrorMessage(error, t) {
   }
 
   if (error?.code === "HTTP_ERROR") {
-    return t("errors.general");
+    return (
+      error?.status === 503
+        ? (
+            error?.message
+            || t(
+              "errors.serviceUnavailable",
+            )
+          )
+        : t("errors.general")
+    );
   }
 
   return error?.message || t("errors.general");
@@ -330,8 +341,12 @@ export function getDominantSatelliteClass(
   satelliteContext,
 ) {
   if (
-    satelliteContext?.status
-    !== "available"
+    ![
+      "available",
+      "demo",
+    ].includes(
+      satelliteContext?.status,
+    )
   ) {
     return null;
   }

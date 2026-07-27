@@ -15,6 +15,7 @@ import {
 
 import AIAssistant from "./AIAssistant";
 import PDFReportButton from "./PDFReport";
+import { DemoBadge } from "./AnalysisComponents";
 import SatelliteContextCard from "./SatelliteContextCard";
 import {
   buildEstimatedTrafficActivity,
@@ -636,6 +637,7 @@ export default function AnalysisDashboard({
 
   return (
     <section
+      id="analysis-dashboard"
       className="analysis-dashboard"
       aria-labelledby="analysis-dashboard-title"
     >
@@ -647,6 +649,9 @@ export default function AnalysisDashboard({
           <h2 id="analysis-dashboard-title">
             {t("dashboard.title")}
           </h2>
+          {result?.is_demo && (
+            <DemoBadge t={t} />
+          )}
         </div>
 
         <div className="dashboard-heading-actions">
@@ -668,6 +673,16 @@ export default function AnalysisDashboard({
           />
         </div>
       </div>
+
+      {result?.is_demo && (
+        <div
+          className="dashboard-demo-notice"
+          role="note"
+        >
+          <DemoBadge t={t} />
+          <span>{t("dashboard.demoNotice")}</span>
+        </div>
+      )}
 
       <div className="dashboard-chart-grid">
         <TrafficActivityChart

@@ -26,6 +26,11 @@ from app.services.satellite_service import (
     SatelliteService,
     SatelliteServiceError,
 )
+from app.runtime import is_demo_mode
+from app.services.demo_service import (
+    DEMO_SATELLITE_FILE,
+    build_demo_satellite_context,
+)
 
 
 router = APIRouter(
@@ -170,6 +175,7 @@ class SatelliteContextResponse(BaseModel):
 
     status: Literal[
         "available",
+        "demo",
         "not_configured",
         "no_imagery",
         "temporarily_unavailable",
@@ -182,6 +188,12 @@ class SatelliteContextResponse(BaseModel):
     quality: SatelliteQuality | None = None
     source: SatelliteSource | None = None
     is_estimated: bool | None = None
+    data_mode: Literal[
+        "demo",
+        "live",
+    ] | None = None
+    is_demo: bool = False
+    source_status: dict[str, str] | None = None
 
 
 @router.get(
@@ -206,6 +218,15 @@ async def satellite_context(
         get_satellite_service
     ),
 ) -> SatelliteContextResponse:
+    if is_demo_mode():
+        return SatelliteContextResponse(
+            **build_demo_satellite_context(
+                latitude=latitude,
+                longitude=longitude,
+                radius_meters=radius_meters,
+            )
+        )
+
     result = await service.get_context(
         latitude=latitude,
         longitude=longitude,
@@ -247,6 +268,21 @@ async def satellite_preview(
         get_satellite_service
     ),
 ) -> Response:
+    if is_demo_mode():
+        return Response(
+            content=(
+                DEMO_SATELLITE_FILE
+                .read_bytes()
+            ),
+            media_type="image/svg+xml",
+            headers={
+                "Cache-Control": (
+                    "public, max-age=21600"
+                ),
+                "X-Data-Mode": "demo",
+            },
+        )
+
     try:
         preview = await service.get_preview(
             latitude=latitude,

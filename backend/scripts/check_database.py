@@ -1,10 +1,18 @@
+import sys
+from pathlib import Path
+
 from sqlalchemy import text
 
-from app.database import engine
+BACKEND_DIR = Path(__file__).resolve().parent.parent
+
+if str(BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(BACKEND_DIR))
+
+from app.database import get_engine
 
 
 try:
-    with engine.connect() as connection:
+    with get_engine().connect() as connection:
         result = connection.execute(
             text(
                 """

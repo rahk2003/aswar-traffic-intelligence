@@ -18,6 +18,7 @@ from shapely.geometry.base import BaseGeometry
 from shapely.ops import transform
 
 from app.config import LiveAnalysisSettings
+from app.runtime import get_service_statuses
 from app.services.traffic_scoring import (
     calculate_traffic_score,
 )
@@ -745,6 +746,9 @@ def analyze_live_point(
     radius_meters: int,
 ) -> dict[str, Any]:
     started_at = perf_counter()
+    configured_services = (
+        get_service_statuses()
+    )
     osm_metrics = None
     live_traffic = None
     data_warnings: list[str] = []
@@ -838,6 +842,48 @@ def analyze_live_point(
         ),
         "analysis_duration_seconds":
             analysis_duration_seconds,
+        "analysis_duration":
+            analysis_duration_seconds,
+        "data_mode": "live",
+        "is_demo": False,
+        "source_status": {
+            "database": (
+                configured_services[
+                    "database"
+                ]
+            ),
+            "openstreetmap": (
+                "available"
+                if osm_metrics is not None
+                else "unavailable"
+            ),
+            "tomtom": (
+                "available"
+                if live_traffic is not None
+                else (
+                    "unconfigured"
+                    if configured_services[
+                        "tomtom"
+                    ]
+                    == "unconfigured"
+                    else "unavailable"
+                )
+            ),
+            "satellite": (
+                "configured"
+                if (
+                    configured_services[
+                        "earth_engine"
+                    ]
+                    == "configured"
+                    and configured_services[
+                        "copernicus"
+                    ]
+                    == "configured"
+                )
+                else "unconfigured"
+            ),
+        },
         "data_warnings": data_warnings,
         "requested_point": {
             "latitude": latitude,

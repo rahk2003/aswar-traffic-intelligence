@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router";
 
 import Navbar from "./components/Navbar";
+import SystemModeBanner from "./components/SystemModeBanner";
 import Compare from "./pages/Compare";
 import Home from "./pages/Home";
 import MapPage from "./pages/MapPage";
@@ -11,6 +12,7 @@ function App() {
   return (
     <div className="app">
       <Navbar />
+      <SystemModeBanner />
 
       <Routes>
         <Route path="/" element={<Home />} />

@@ -14,11 +14,15 @@ import {
 import {
   CoordinateInput,
   DataWarnings,
+  DemoBadge,
   ErrorState,
   LoadingState,
   LocationMarker,
   ScoreCard,
 } from "../components/AnalysisComponents";
+import ComparisonDashboard
+  from "../components/ComparisonDashboard";
+import ComparisonInsights from "../components/ComparisonInsights";
 import { analyzePoint } from "../services/api";
 import {
   ANALYSIS_RADIUS_OPTIONS,
@@ -253,6 +257,9 @@ function AnalysisPreview({
 
         <div>
           <h3>{t(`compare.location${slot}`)}</h3>
+          {result?.is_demo && (
+            <DemoBadge t={t} />
+          )}
           <p dir="ltr">
             {formatCoordinate(point.latitude)}
             {", "}
@@ -1278,13 +1285,51 @@ function Compare() {
 
       {bothResults && recommendation && (
         <div className="comparison-results">
+          {(
+            results.a?.is_demo
+            || results.b?.is_demo
+          ) && (
+            <div className="comparison-demo-notice">
+              <DemoBadge t={t} />
+              <span>
+                {t("system.demoDescription")}
+              </span>
+            </div>
+          )}
+
           <RecommendationCard
             recommendation={recommendation}
             t={t}
             displayNumber={displayNumber}
           />
 
+          <ComparisonDashboard
+            resultA={results.a}
+            resultB={results.b}
+            t={t}
+            i18n={i18n}
+          />
+
           <ComparisonTable
+            resultA={results.a}
+            resultB={results.b}
+            t={t}
+            i18n={i18n}
+          />
+
+          <ComparisonInsights
+            key={[
+              results.a?.requested_point
+                ?.latitude,
+              results.a?.requested_point
+                ?.longitude,
+              results.b?.requested_point
+                ?.latitude,
+              results.b?.requested_point
+                ?.longitude,
+              radius,
+              i18n.language,
+            ].join(":")}
             resultA={results.a}
             resultB={results.b}
             t={t}

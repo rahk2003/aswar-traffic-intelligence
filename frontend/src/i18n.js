@@ -148,14 +148,25 @@ const resources = {
         percent: "٪",
       },
 
+      system: {
+        demoTitle: "وضع العرض التجريبي",
+        demoDescription:
+          "تُعرض بيانات نموذجية لأن بعض خدمات البيانات الخارجية غير مهيأة.",
+        demoBadge: "تجريبي",
+        backendUnavailableTitle:
+          "خدمة التحليل غير متاحة",
+        backendUnavailableDescription:
+          "تعذر الوصول إلى Backend. تأكد من تشغيل خدمة FastAPI على العنوان المضبوط ثم أعد المحاولة.",
+      },
+
       home: {
-        eyebrow: "قرارات إعلانية مدعومة ببيانات حقيقية",
+        eyebrow: "قرارات إعلانية مدعومة بتحليل مكاني",
         title: "افهم حركة المدينة قبل اختيار موقع إعلانك",
         description:
           "تحلل المنصة شبكة الطرق والخدمات المحيطة وحالة المرور المباشرة، لتمنحك قراءة واضحة وقابلة للمقارنة لأي موقع إعلاني.",
         analyzeCta: "تحليل موقع على الخريطة",
         compareCta: "مقارنة موقعين",
-        realData: "بيانات حقيقية",
+        realData: "حالة بيانات واضحة",
         bilingual: "واجهة عربية وإنجليزية",
         noEstimatesHidden: "منهجية واضحة",
         illustrationAlt:
@@ -167,7 +178,7 @@ const resources = {
         featuresTitle:
           "المؤشرات الأهم في شاشة تحليل واحدة",
         featuresDescription:
-          "من اختيار النقطة إلى تفسير النتيجة، تعرض المنصة بيانات المكان كما تصل من مصادرها الفعلية دون قيم تجريبية.",
+          "من اختيار النقطة إلى تفسير النتيجة، تعرض المنصة بيانات الموقع مع توضيح ما إذا كانت مباشرة أو نموذجية للعرض التجريبي.",
         features: {
           live: {
             title: "حالة المرور الآن",
@@ -246,11 +257,11 @@ const resources = {
         longitude: "خط الطول",
         readyTitle: "الموقع جاهز للتحليل",
         readyDescription:
-          "ستجمع المنصة بيانات الطرق والخدمات من OpenStreetMap، وحالة المرور المباشرة من TomTom، ثم تعرض درجة الموقع.",
+          "ستجهز المنصة بيانات الطرق والخدمات والمرور وفق وضع التشغيل الحالي، ثم تعرض الدرجة مع حالة مصادر البيانات.",
         analyze: "تحليل الموقع",
         loadingTitle: "جارٍ تحليل الموقع",
         loadingDescription:
-          "يتم الآن جلب البيانات مباشرة من مصادرها، وقد يستغرق ذلك بضع ثوانٍ.",
+          "يتم الآن تجهيز بيانات التحليل وفق وضع التشغيل الحالي، وقد يستغرق ذلك بضع ثوانٍ.",
         loadingRoads: "تحليل شبكة الطرق",
         loadingServices: "حصر الخدمات والمرافق القريبة",
         loadingTraffic: "قراءة حالة المرور الحالية",
@@ -279,6 +290,8 @@ const resources = {
           "OpenStreetMap للتحليل المكاني والخدمات",
         tomtomSource:
           "TomTom لحالة المرور المباشرة",
+        demoSource:
+          "بيانات نموذجية واضحة لوضع العرض التجريبي وليست قراءة مباشرة من مزودي البيانات",
         contextNote:
           "تعتمد النتيجة على خصائص الموقع وحالة المرور الحالية. لا يتوفر عدّ رسمي للمركبات خلال 24 ساعة للنقاط المختارة مباشرة من الخريطة.",
       },
@@ -288,6 +301,18 @@ const resources = {
         title: "لوحة مؤشرات الموقع الإعلاني",
         description:
           "قراءة مرئية للعوامل التي كوّنت النتيجة، مع تقدير لنشاط الموقع وملخص يساعد على تفسير ملاءمته الإعلانية.",
+        demoNotice:
+          "هذه مؤشرات نموذجية محفوظة لعرض جميع إمكانات لوحة المعلومات، وليست بيانات مباشرة.",
+        demoNavigationLabel:
+          "الوصول إلى ميزات العرض التجريبي",
+        demoNavigationText:
+          "تم تحميل تحليل نموذجي تلقائيًا. جميع الميزات متاحة أدناه.",
+        navigationText:
+          "يمكنك الانتقال مباشرة إلى جميع أدوات تفسير التحليل أدناه.",
+        demoDashboardLink: "لوحة المعلومات",
+        demoSatelliteLink:
+          "سياق الأقمار الصناعية",
+        demoAssistantLink: "المساعد الذكي",
         loading: "جارٍ تجهيز لوحة المؤشرات…",
         trafficActivity:
           "النشاط المروري التقديري خلال اليوم",
@@ -382,6 +407,8 @@ const resources = {
       },
 
       satellite: {
+        demoNotice:
+          "هذا مثال محفوظ للعرض التجريبي، وليس تحليلًا مباشرًا من Google Earth Engine.",
         title: "تحليل صور الأقمار الصناعية للموقع",
         description:
           "تصنيف احتمالي لطبيعة سطح الأرض داخل نطاق التحليل باستخدام نموذج Dynamic World المدرّب على صور Sentinel-2.",
@@ -470,6 +497,8 @@ const resources = {
             "استُخدمت أقرب نتيجة Dynamic World متاحة لأن تاريخها لم يطابق تاريخ صورة Sentinel-2 المعروضة تمامًا.",
           multipleFactors:
             "أدت عدة عوامل مرتبطة بجودة Dynamic World إلى خفض موثوقية التصنيف.",
+          demoSample:
+            "هذه نتيجة نموذجية محفوظة لوضع العرض التجريبي، وليست تصنيفًا مباشرًا من Earth Engine.",
         },
         aridEnvironmentWarning:
           "يعتمد التصنيف الرئيسي على متوسط حزم الاحتمال في Dynamic World. تُعرض NDVI وNDBI وBSI كمؤشرات مساندة فقط وليست أساس النسب.",
@@ -485,6 +514,8 @@ const resources = {
         title: "المساعد الذكي",
         description:
           "اسأل عن الدرجة أو المرور أو الطرق والخدمات أو صورة القمر الصناعي. يجيب المساعد من بيانات الموقع الحالية ولا يغيّر الحساب.",
+        demoNotice:
+          "يشرح المساعد التحليل النموذجي الحالي، ويذكر بوضوح أن البيانات المعروضة بيانات تجريبية وليست مباشرة.",
         suggestionsLabel: "أسئلة مقترحة",
         questions: {
           why_score:
@@ -550,11 +581,39 @@ const resources = {
           "بلغت درجة الموقع {{score}} من 100. كان العامل الأقوى «{{strongest}}» بدرجة {{strongestScore}}، بينما كان العامل الأضعف «{{weakest}}» بدرجة {{weakestScore}}. هذه قراءة تفسيرية للنتيجة الحالية فقط.",
         defaultExplanationUnavailable:
           "لا تتوفر درجات عوامل كافية لشرح سبب النتيجة تفصيليًا.",
+        dataMode: "وضع البيانات",
+        liveMode: "بيانات مباشرة",
+        demoMode: "عرض تجريبي",
+        dataStatus: "حالة البيانات",
+        demoDataNotice:
+          "هذا التقرير مبني على بيانات نموذجية واضحة ضمن وضع العرض التجريبي، وليس على قراءة مباشرة من مزودي البيانات.",
+        liveDataNotice:
+          "يعرض التقرير حالة البيانات التي أعادها الخادم وقت التحليل.",
+        dataSources: "حالة مصادر البيانات",
+        statusAvailable: "متاح",
+        statusDemo: "بيانات تجريبية",
+        statusUnconfigured: "غير مهيأ",
+        statusUnavailable: "غير متاح",
+        satelliteUnavailable:
+          "لم يتوفر سياق صور الأقمار الصناعية لهذه النتيجة. اكتمل التقرير من دون الصورة أو التصنيف.",
         download: "تحميل تقرير PDF",
         generating: "جارٍ إنشاء التقرير…",
+        progress: {
+          preparing: "جارٍ تجهيز التقرير…",
+          resources:
+            "جارٍ تحميل موارد التقرير…",
+          generating:
+            "جارٍ إنشاء ملف PDF…",
+          downloading:
+            "جارٍ تنزيل ملف PDF…",
+        },
         success: "تم إنشاء التقرير وتنزيله.",
+        downloadAgain:
+          "تنزيل الملف مرة أخرى",
         error:
           "تعذر إنشاء ملف PDF. أعد المحاولة بعد قليل.",
+        timeout:
+          "تجاوز إنشاء التقرير الحد الأقصى وهو ١٥ ثانية. أعد المحاولة.",
         retry: "إعادة المحاولة",
       },
 
@@ -583,7 +642,7 @@ const resources = {
         eyebrow: "مقارنة المواقع",
         title: "قارن بين موقعين على الخريطة",
         description:
-          "حدد موقعين فعليين، ثم حللهما بالتوازي لمقارنة درجة الحركة المرورية والسياق المكاني لكلٍ منهما.",
+          "حدد نقطتين، ثم حللهما بالتوازي لمقارنة درجة الحركة المرورية والسياق المكاني لكلٍ منهما.",
         mapTitle: "حدد الموقعين",
         mapLabel: "خريطة اختيار موقعين للمقارنة",
         selectingLocation:
@@ -613,7 +672,7 @@ const resources = {
         recommendationInsufficient:
           "لا توجد بيانات كافية لتحديد الموقع الأنسب",
         winnerExplanation:
-          "يظهر {{location}} ملاءمة أعلى للإعلان الخارجي وفق درجة الحركة المرورية والفروق الفعلية في سياق الموقع.",
+          "يظهر {{location}} ملاءمة أعلى للإعلان الخارجي وفق درجة الحركة المرورية والفروق المعروضة في سياق الموقع.",
         closeExplanation:
           "الفارق بين الموقعين محدود، لذلك لا توجد أفضلية واضحة اعتمادًا على البيانات الحالية.",
         insufficientExplanation:
@@ -641,6 +700,120 @@ const resources = {
         trafficLevel: "مستوى الحركة المرورية",
         speedNote:
           "تُعرض السرعات بوصفها مؤشرات وصفية؛ لا تُعامل السرعة الأعلى وحدها كأفضلية إعلانية.",
+        dashboardEyebrow:
+          "لوحة المقارنة",
+        dashboardTitle:
+          "لوحة مقارنة الموقعين",
+        dashboardDescription:
+          "قراءة موحدة لدرجة الحركة والعوامل المكانية، مع الفائز والفارق في كل مؤشر دون تغيير معادلة Traffic Score.",
+        dashboardDataStatus:
+          "حالة البيانات",
+        dashboardDemoData:
+          "بيانات تجريبية",
+        dashboardLiveData:
+          "بيانات مباشرة",
+        dashboardRoadType:
+          "نوع الطريق ودرجته",
+        dashboardWinnerLocation:
+          "الفائز: الموقع {{location}}",
+        dashboardTie: "تعادل",
+        dashboardNoWinner:
+          "لا توجد بيانات كافية",
+        dashboardDifference: "الفارق",
+        dashboardSummaryTitle:
+          "خلاصة لوحة المقارنة",
+        dashboardSummaryWinner:
+          "الموقع {{location}} أنسب وفق Traffic Score بفارق {{difference}} نقطة. أبرز المؤشرات الداعمة: {{reasons}}.",
+        dashboardSummaryTie:
+          "الموقعان متعادلان في Traffic Score، لذلك لا تحدد البيانات الحالية أفضلية واضحة بينهما.",
+        dashboardSummaryUnavailable:
+          "لا تتوفر درجات مكتملة للموقعين لإنشاء خلاصة مقارنة موثوقة.",
+        dashboardReasonSeparator: "، ",
+        dashboardScoreReason:
+          "درجة الحركة المرورية",
+        pdfButton:
+          "تحميل تقرير المقارنة PDF",
+        pdfGenerating:
+          "جارٍ إنشاء تقرير المقارنة…",
+        pdfSuccess:
+          "تم تنزيل تقرير المقارنة.",
+        pdfError:
+          "تعذر إنشاء تقرير المقارنة. حاول مرة أخرى.",
+        pdfTimeout:
+          "استغرق إنشاء تقرير المقارنة وقتًا أطول من المتوقع.",
+        pdfTitle:
+          "تقرير مقارنة المواقع الإعلانية",
+        pdfDemoNotice:
+          "يستخدم هذا التقرير بيانات Demo نموذجية واضحة، وليست قراءات مباشرة من مزودي البيانات.",
+        pdfLocations:
+          "بيانات الموقعين ونطاق التحليل",
+        pdfDashboard:
+          "لوحة المقارنة المختصرة",
+        pdfMetricTable:
+          "جدول مقارنة المؤشرات",
+        pdfWinnerAndDifference:
+          "الفائز والفارق",
+        pdfWinnerLocation:
+          "الفائز: {{location}}",
+        pdfStrengthsWeaknesses:
+          "نقاط القوة والضعف",
+        pdfStrongest: "أقوى عامل",
+        pdfWeakest: "أضعف عامل",
+        pdfSatellite:
+          "سياق الأقمار الصناعية",
+        pdfSatelliteUnavailable:
+          "سياق الأقمار الصناعية للموقع {{location}} غير متاح. اكتمل التقرير بالبيانات الأساسية.",
+        pdfAssistant:
+          "تفسير مساعد المقارنة",
+        pdfAssistantFallback:
+          "تشير المقارنة الأساسية إلى أن النتيجة لصالح {{location}} بفارق {{difference}} نقطة. هذا تفسير من البيانات المحملة ولا يغيّر Traffic Score.",
+        pdfAssistantFallbackTie:
+          "تشير البيانات المحملة إلى تعادل الموقعين في Traffic Score. هذا تفسير سياقي ولا يغيّر الحساب.",
+        pdfAssistantFallbackUnavailable:
+          "لا تتوفر درجتان مكتملتان لإنشاء تفسير موثوق للمقارنة. لم تتأثر البيانات الأساسية.",
+        pdfRecommendation:
+          "التوصية النهائية",
+        pdfRecommendationWinner:
+          "{{location}} هو الأنسب وفق Traffic Score الحالي بفارق {{difference}} نقطة. يجب التحقق ميدانيًا من وضوح الإعلان والتكلفة والتراخيص.",
+        pdfRecommendationTie:
+          "الموقعان متقاربان وفق Traffic Score الحالي، ولا توجد أفضلية رقمية واضحة.",
+        pdfRecommendationUnavailable:
+          "لا تتوفر بيانات مكتملة للموقعين لتحديد موقع أنسب بصورة موثوقة.",
+        pdfSources:
+          "حالة مصادر البيانات",
+        pdfSource: "المصدر",
+        pdfDisclaimer:
+          "صور الأقمار الصناعية وتفسير المساعد سياق إضافي مستقل، ولا يغيران Traffic Score أو أوزانه أو يمثلان عدًا رسميًا للمركبات.",
+        contextEyebrow:
+          "سياق إضافي مستقل",
+        contextTitle:
+          "الأقمار الصناعية والمساعد للمقارنة",
+        contextDescription:
+          "يُحمّل سياق كل موقع بصورة مستقلة، ولا يؤدي تعطل أحد المصادر إلى إخفاء المقارنة الأساسية.",
+        satelliteLocationTitle:
+          "سياق الأقمار الصناعية للموقع {{location}}",
+        satelliteLoading:
+          "جارٍ تحميل صورة الأقمار الصناعية وفئات Dynamic World…",
+        satelliteUnavailable:
+          "سياق الأقمار الصناعية غير متاح لهذا الموقع حاليًا. بقيت المقارنة الأساسية متاحة.",
+        satelliteRetry: "إعادة تحميل السياق",
+        satelliteImageAlt:
+          "معاينة الأقمار الصناعية للموقع {{location}}",
+        liveBadge: "مباشر",
+        assistantKicker:
+          "تفسير المقارنة",
+        assistantTitle:
+          "مساعد المقارنة الذكي",
+        assistantLoading:
+          "جارٍ تفسير الفرق بين الموقعين…",
+        assistantError:
+          "تعذر إنشاء تفسير المقارنة. لم تتأثر النتائج الأساسية.",
+        assistantRetry:
+          "إعادة إنشاء التفسير",
+        assistantDemoNotice:
+          "يعتمد هذا التفسير على بيانات Demo النموذجية، وليست بيانات مباشرة.",
+        assistantDisclaimer:
+          "المساعد يفسر النتائج والسياق العمراني فقط، ولا يغيّر Traffic Score أو أوزانه.",
       },
 
       levels: {
@@ -663,6 +836,10 @@ const resources = {
           "تعذر جلب حالة المرور من TomTom، لذلك لم تُحسب الدرجة.",
         network:
           "تعذر الاتصال بالخادم. تأكد من تشغيل خدمة التحليل ثم أعد المحاولة.",
+        backendUnavailable:
+          "خدمة Backend غير متاحة. تأكد من تشغيل FastAPI ومن صحة VITE_API_BASE_URL ثم أعد المحاولة.",
+        serviceUnavailable:
+          "الخدمة المطلوبة غير مهيأة أو غير متاحة حاليًا.",
         timeout:
           "استغرق جلب البيانات وقتًا أطول من المتوقع. أعد المحاولة بعد قليل.",
         general:
@@ -701,15 +878,27 @@ const resources = {
         percent: "%",
       },
 
+      system: {
+        demoTitle: "Demo Mode",
+        demoDescription:
+          "Sample results are displayed because some external data services are not configured.",
+        demoBadge: "Demo",
+        backendUnavailableTitle:
+          "Analysis service unavailable",
+        backendUnavailableDescription:
+          "The Backend could not be reached. Make sure FastAPI is running at the configured address, then try again.",
+      },
+
       home: {
-        eyebrow: "Real data for outdoor decisions",
+        eyebrow:
+          "Spatial analysis for outdoor advertising decisions",
         title:
           "Understand city movement before choosing your advertising site",
         description:
           "The platform analyzes the surrounding road network, nearby activity, and live traffic context to give every advertising location a clear, comparable reading.",
         analyzeCta: "Analyze a map location",
         compareCta: "Compare two locations",
-        realData: "Real data",
+        realData: "Clear data status",
         bilingual: "Arabic and English",
         noEstimatesHidden: "Transparent methodology",
         illustrationAlt:
@@ -721,7 +910,7 @@ const resources = {
         featuresTitle:
           "The signals that matter, in one analytical view",
         featuresDescription:
-          "From selecting a point to interpreting the result, the platform displays data returned by its real sources without demo values.",
+          "From point selection to interpretation, the platform clearly identifies whether the displayed location data is live or a Demo Mode sample.",
         features: {
           live: {
             title: "Current traffic conditions",
@@ -804,11 +993,11 @@ const resources = {
         longitude: "Longitude",
         readyTitle: "Location ready for analysis",
         readyDescription:
-          "The platform will retrieve road and service data from OpenStreetMap, read live traffic from TomTom, and display the site score.",
+          "The platform will prepare road, service, and traffic data for the current runtime mode and display the score with source status.",
         analyze: "Analyze Location",
         loadingTitle: "Analyzing location",
         loadingDescription:
-          "Data is being retrieved directly from its sources. This may take a few seconds.",
+          "The platform is preparing analysis data for the current runtime mode. This may take a few seconds.",
         loadingRoads: "Analyzing the road network",
         loadingServices: "Identifying nearby services",
         loadingTraffic: "Reading live traffic conditions",
@@ -838,6 +1027,8 @@ const resources = {
           "OpenStreetMap for spatial and service analysis",
         tomtomSource:
           "TomTom for live traffic conditions",
+        demoSource:
+          "Clearly labeled Demo Mode sample data, not a direct reading from data providers",
         contextNote:
           "This result uses the location context and current traffic conditions. An official 24-hour vehicle count is not available for arbitrary map points.",
       },
@@ -847,6 +1038,18 @@ const resources = {
         title: "Advertising Location Dashboard",
         description:
           "A visual reading of the factors behind the score, estimated site activity, and a final interpretation of advertising suitability.",
+        demoNotice:
+          "These are saved sample metrics provided to demonstrate every dashboard feature. They are not live data.",
+        demoNavigationLabel:
+          "Demo feature navigation",
+        demoNavigationText:
+          "A sample analysis was loaded automatically. Every feature is available below.",
+        navigationText:
+          "Jump directly to any analysis interpretation tool below.",
+        demoDashboardLink: "Dashboard",
+        demoSatelliteLink:
+          "Satellite Context",
+        demoAssistantLink: "AI Assistant",
         loading: "Preparing the dashboard…",
         trafficActivity:
           "Estimated Traffic Activity During the Day",
@@ -943,6 +1146,8 @@ const resources = {
       },
 
       satellite: {
+        demoNotice:
+          "This is a saved Demo Mode example, not a live Google Earth Engine analysis.",
         title: "Satellite Context Analysis",
         description:
           "A probability-based land-cover classification within the analysis radius using the Dynamic World model trained on Sentinel-2 imagery.",
@@ -1032,6 +1237,8 @@ const resources = {
             "The nearest available Dynamic World result was used because its date did not exactly match the displayed Sentinel-2 image.",
           multipleFactors:
             "Multiple Dynamic World quality factors reduced classification confidence.",
+          demoSample:
+            "This is a saved Demo Mode sample, not a live Earth Engine classification.",
         },
         aridEnvironmentWarning:
           "The primary classification uses mean Dynamic World probability bands. NDVI, NDBI, and BSI are displayed only as supporting indicators and do not determine the percentages.",
@@ -1047,6 +1254,8 @@ const resources = {
         title: "AI Assistant",
         description:
           "Ask about the score, traffic, roads and services, or the satellite image. The assistant answers from the current location data without changing the calculation.",
+        demoNotice:
+          "The assistant explains the current sample analysis and explicitly identifies it as Demo Mode data, not live data.",
         suggestionsLabel: "Suggested questions",
         questions: {
           why_score:
@@ -1114,12 +1323,40 @@ const resources = {
           "The location scored {{score}} out of 100. “{{strongest}}” was the strongest factor at {{strongestScore}}, while “{{weakest}}” was the weakest at {{weakestScore}}. This explanation describes the current result only.",
         defaultExplanationUnavailable:
           "There are not enough factor scores to explain the result in detail.",
+        dataMode: "Data mode",
+        liveMode: "Live data",
+        demoMode: "Demo Mode",
+        dataStatus: "Data status",
+        demoDataNotice:
+          "This report uses clearly labeled sample data in Demo Mode, not direct readings from data providers.",
+        liveDataNotice:
+          "The report shows the data status returned by the backend at analysis time.",
+        dataSources: "Data-source status",
+        statusAvailable: "Available",
+        statusDemo: "Demo data",
+        statusUnconfigured: "Not configured",
+        statusUnavailable: "Unavailable",
+        satelliteUnavailable:
+          "Satellite context was unavailable for this result. The report was completed without imagery or classification.",
         download: "Download PDF Report",
         generating: "Generating report…",
+        progress: {
+          preparing: "Preparing report…",
+          resources:
+            "Loading report resources…",
+          generating:
+            "Generating PDF…",
+          downloading:
+            "Downloading PDF…",
+        },
         success:
           "The report was generated and downloaded.",
+        downloadAgain:
+          "Download the file again",
         error:
           "The PDF report could not be generated. Please try again.",
+        timeout:
+          "Report generation exceeded the 15-second limit. Please try again.",
         retry: "Try again",
       },
 
@@ -1210,7 +1447,7 @@ const resources = {
         eyebrow: "Location comparison",
         title: "Compare Two Locations on the Map",
         description:
-          "Select two real map points, then analyze them in parallel to compare Traffic Score and spatial context.",
+          "Select two map points, then analyze them in parallel to compare Traffic Score and spatial context.",
         mapTitle: "Select both locations",
         mapLabel:
           "Map for selecting two comparison locations",
@@ -1246,7 +1483,7 @@ const resources = {
         recommendationInsufficient:
           "Not enough data to select a location",
         winnerExplanation:
-          "{{location}} shows stronger estimated outdoor advertising potential based on its Traffic Score and the returned location differences.",
+          "{{location}} shows stronger estimated outdoor advertising potential based on its Traffic Score and the displayed location differences.",
         closeExplanation:
           "The difference between the locations is limited, so the current data does not establish a clear advantage.",
         insufficientExplanation:
@@ -1275,6 +1512,121 @@ const resources = {
         trafficLevel: "Traffic level",
         speedNote:
           "Speeds are descriptive metrics. A higher current speed is not treated as an advertising advantage by itself.",
+        dashboardEyebrow:
+          "Comparison dashboard",
+        dashboardTitle:
+          "Location Comparison Dashboard",
+        dashboardDescription:
+          "A unified view of Traffic Score and spatial factors, including the winner and numeric difference for every metric without changing the Traffic Score formula.",
+        dashboardDataStatus:
+          "Data status",
+        dashboardDemoData:
+          "Demo data",
+        dashboardLiveData:
+          "Live data",
+        dashboardRoadType:
+          "Road type and score",
+        dashboardWinnerLocation:
+          "Winner: Location {{location}}",
+        dashboardTie: "Tie",
+        dashboardNoWinner:
+          "Insufficient data",
+        dashboardDifference: "Difference",
+        dashboardSummaryTitle:
+          "Dashboard summary",
+        dashboardSummaryWinner:
+          "Location {{location}} is more suitable by {{difference}} Traffic Score points. The strongest supporting indicators are: {{reasons}}.",
+        dashboardSummaryTie:
+          "The locations have equal Traffic Scores, so the current data does not establish a clear advantage.",
+        dashboardSummaryUnavailable:
+          "Complete scores are not available for both locations, so a reliable comparison summary cannot be produced.",
+        dashboardReasonSeparator: ", ",
+        dashboardScoreReason:
+          "Traffic Score",
+        pdfButton:
+          "Download Comparison PDF Report",
+        pdfGenerating:
+          "Generating comparison report…",
+        pdfSuccess:
+          "The comparison report was downloaded.",
+        pdfError:
+          "The comparison report could not be created. Please try again.",
+        pdfTimeout:
+          "The comparison report took longer than expected to generate.",
+        pdfTitle:
+          "Advertising Location Comparison Report",
+        pdfDemoNotice:
+          "This report uses clearly labeled Demo Mode sample data, not direct readings from data providers.",
+        pdfLocations:
+          "Locations and analysis area",
+        pdfDashboard:
+          "Compact comparison dashboard",
+        pdfMetricTable:
+          "Metric comparison table",
+        pdfWinnerAndDifference:
+          "Winner and difference",
+        pdfWinnerLocation:
+          "Winner: {{location}}",
+        pdfStrengthsWeaknesses:
+          "Strengths and weaknesses",
+        pdfStrongest: "Strongest factor",
+        pdfWeakest: "Weakest factor",
+        pdfSatellite:
+          "Satellite context",
+        pdfSatelliteUnavailable:
+          "Satellite context for Location {{location}} is unavailable. The report was completed using the core data.",
+        pdfAssistant:
+          "AI comparison explanation",
+        pdfAssistantFallback:
+          "The core comparison favors {{location}} by {{difference}} points. This explanation uses already loaded data and does not change the Traffic Score.",
+        pdfAssistantFallbackTie:
+          "The loaded data shows equal Traffic Scores. This contextual explanation does not change the calculation.",
+        pdfAssistantFallbackUnavailable:
+          "Complete scores are not available for both locations, so a reliable comparison explanation cannot be generated. The core data remains available.",
+        pdfRecommendation:
+          "Final recommendation",
+        pdfRecommendationWinner:
+          "{{location}} is more suitable under the current Traffic Score by {{difference}} points. On-site checks should still confirm visibility, cost, and permits.",
+        pdfRecommendationTie:
+          "The locations are closely matched under the current Traffic Score, with no clear numeric advantage.",
+        pdfRecommendationUnavailable:
+          "Complete data is not available for both locations, so a reliable recommendation cannot be made.",
+        pdfSources:
+          "Data-source status",
+        pdfSource: "Source",
+        pdfDisclaimer:
+          "Satellite context and AI explanations are independent supporting layers. They do not modify the Traffic Score, its weights, or represent an official vehicle count.",
+        contextEyebrow:
+          "Independent supporting context",
+        contextTitle:
+          "Satellite and AI Comparison",
+        contextDescription:
+          "Each location context loads independently. A source failure never hides the core comparison.",
+        satelliteLocationTitle:
+          "Satellite Context for Location {{location}}",
+        satelliteLoading:
+          "Loading satellite preview and Dynamic World classes…",
+        satelliteUnavailable:
+          "Satellite context is currently unavailable for this location. The core comparison remains available.",
+        satelliteRetry:
+          "Reload satellite context",
+        satelliteImageAlt:
+          "Satellite preview for Location {{location}}",
+        liveBadge: "Live",
+        assistantKicker:
+          "Comparison explanation",
+        assistantTitle:
+          "AI Comparison Assistant",
+        assistantLoading:
+          "Explaining the difference between the locations…",
+        assistantError:
+          "The comparison explanation could not be generated. The core results were not affected.",
+        assistantRetry:
+          "Generate the explanation again",
+        assistantDemoNotice:
+          "This explanation uses sample Demo Mode data, not live data.",
+        assistantDisclaimer:
+          "The assistant explains the results and urban context only. It does not change the Traffic Score or its weights.",
       },
 
       levels: {
@@ -1297,6 +1649,10 @@ const resources = {
           "Live traffic could not be retrieved from TomTom, so no score was calculated.",
         network:
           "The platform could not connect to the analysis service. Make sure it is running, then try again.",
+        backendUnavailable:
+          "The Backend service is unavailable. Make sure FastAPI is running and VITE_API_BASE_URL is correct, then try again.",
+        serviceUnavailable:
+          "The requested service is not configured or is currently unavailable.",
         timeout:
           "Retrieving the data took longer than expected. Please try again shortly.",
         general:

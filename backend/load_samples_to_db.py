@@ -7,7 +7,7 @@ from typing import Any
 from geoalchemy2.elements import WKTElement
 from sqlalchemy import func, select
 
-from app.database import SessionLocal
+from app.database import get_session_factory
 from app.models import Location, OSMSnapshot, TrafficReading
 
 
@@ -165,7 +165,7 @@ osm_collected_at = parse_datetime(
 )
 
 
-with SessionLocal() as database:
+with get_session_factory()() as database:
     location = database.scalar(
         select(Location).where(
             func.abs(

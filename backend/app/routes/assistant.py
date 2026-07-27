@@ -9,6 +9,7 @@ from pydantic import (
 )
 
 from app.services.assistant_service import (
+    generate_comparison_explanation,
     generate_assistant_explanation,
 )
 
@@ -193,6 +194,11 @@ class AssistantAnalysis(BaseModel):
         le=1,
     )
     historical_volume_available: bool = False
+    data_mode: Literal[
+        "demo",
+        "live",
+    ] | None = None
+    is_demo: bool = False
     factors: list[AssistantFactor] = Field(
         default_factory=list,
         max_length=6,
@@ -245,6 +251,16 @@ class AssistantExplainResponse(BaseModel):
     fallback_used: bool
 
 
+class AssistantCompareRequest(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+
+    language: Literal["ar", "en"]
+    location_a: AssistantAnalysis
+    location_b: AssistantAnalysis
+
+
 @router.post(
     "/explain",
     response_model=AssistantExplainResponse,
@@ -257,6 +273,28 @@ def explain_analysis(
         question_type=request.question_type,
         language=request.language,
         analysis=request.analysis.model_dump(),
+    )
+
+    return AssistantExplainResponse(
+        **result,
+    )
+
+
+@router.post(
+    "/compare",
+    response_model=AssistantExplainResponse,
+)
+def compare_analyses(
+    request: AssistantCompareRequest,
+) -> AssistantExplainResponse:
+    result = generate_comparison_explanation(
+        language=request.language,
+        location_a=(
+            request.location_a.model_dump()
+        ),
+        location_b=(
+            request.location_b.model_dump()
+        ),
     )
 
     return AssistantExplainResponse(

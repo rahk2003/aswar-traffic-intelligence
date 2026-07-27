@@ -2,6 +2,7 @@ import {
   lazy,
   Suspense,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
@@ -15,6 +16,7 @@ import {
 import {
   CoordinateInput,
   DataWarnings,
+  DemoBadge,
   ErrorState,
   LoadingState,
   LocationMarker,
@@ -22,7 +24,10 @@ import {
   ScoreCard,
   ServicesBreakdown,
 } from "../components/AnalysisComponents";
-import { analyzePoint } from "../services/api";
+import {
+  analyzePoint,
+  getHealth,
+} from "../services/api";
 import {
   ANALYSIS_RADIUS_OPTIONS,
   formatCoordinate,
@@ -140,10 +145,79 @@ function MapPage() {
     useState("");
   const [servicesExpanded, setServicesExpanded] =
     useState(false);
+  const userInteractedRef = useRef(false);
+  const demoLoadedRef = useRef(false);
 
   const isArabic =
     i18n.language.startsWith("ar");
   const unavailable = t("common.unavailable");
+
+
+  useEffect(() => {
+    const controller =
+      new AbortController();
+    let isActive = true;
+
+    getHealth({
+      signal: controller.signal,
+    })
+      .then(async (health) => {
+        if (!isActive) {
+          return;
+        }
+
+        if (
+          health.mode !== "demo"
+          || demoLoadedRef.current
+          || userInteractedRef.current
+        ) {
+          return;
+        }
+
+        demoLoadedRef.current = true;
+
+        const demoPoint = {
+          latitude: RIYADH_CENTER[0],
+          longitude: RIYADH_CENTER[1],
+        };
+
+        setSelectedPoint(demoPoint);
+        setIsAnalyzing(true);
+        setErrorMessage("");
+        setResult(null);
+
+        try {
+          const analysis = await analyzePoint({
+            latitude: demoPoint.latitude,
+            longitude: demoPoint.longitude,
+            radiusMeters: radius,
+          });
+
+          if (isActive) {
+            setResult(analysis);
+          }
+        } catch (error) {
+          if (isActive) {
+            setErrorMessage(
+              getErrorMessage(error, t),
+            );
+          }
+        } finally {
+          if (isActive) {
+            setIsAnalyzing(false);
+          }
+        }
+      })
+      .catch(() => undefined);
+
+    return () => {
+      isActive = false;
+      controller.abort();
+    };
+  }, [
+    radius,
+    t,
+  ]);
 
 
   function displayNumber(
@@ -160,6 +234,7 @@ function MapPage() {
 
 
   function handlePointSelection(point) {
+    userInteractedRef.current = true;
     setSelectedPoint(point);
     setResult(null);
     setErrorMessage("");
@@ -168,6 +243,7 @@ function MapPage() {
 
 
   function handleRadiusChange(event) {
+    userInteractedRef.current = true;
     setRadius(Number(event.target.value));
     setResult(null);
     setErrorMessage("");
@@ -180,6 +256,7 @@ function MapPage() {
       return;
     }
 
+    userInteractedRef.current = true;
     setSelectedPoint(null);
     setResult(null);
     setErrorMessage("");
@@ -299,6 +376,42 @@ function MapPage() {
           </span>
         </label>
       </section>
+
+      {result && (
+        <nav
+          className="demo-feature-nav"
+          aria-label={t(
+            "dashboard.demoNavigationLabel",
+          )}
+        >
+          <div>
+            {result.is_demo && (
+              <DemoBadge t={t} />
+            )}
+            <span>
+              {result.is_demo
+                ? t(
+                    "dashboard.demoNavigationText",
+                  )
+                : t(
+                    "dashboard.navigationText",
+                  )}
+            </span>
+          </div>
+
+          <div className="demo-feature-links">
+            <a href="#analysis-dashboard">
+              {t("dashboard.demoDashboardLink")}
+            </a>
+            <a href="#satellite-context">
+              {t("dashboard.demoSatelliteLink")}
+            </a>
+            <a href="#ai-assistant">
+              {t("dashboard.demoAssistantLink")}
+            </a>
+          </div>
+        </nav>
+      )}
 
       <section className="analysis-layout">
         <div
@@ -474,6 +587,9 @@ function MapPage() {
                     {t("map.resultsEyebrow")}
                   </span>
                   <h2>{t("map.resultsTitle")}</h2>
+                  {result.is_demo && (
+                    <DemoBadge t={t} />
+                  )}
                 </div>
 
                 <button
@@ -671,8 +787,18 @@ function MapPage() {
 
               <div className="data-sources-card">
                 <strong>{t("map.dataSources")}</strong>
-                <span>{t("map.osmSource")}</span>
-                <span>{t("map.tomtomSource")}</span>
+                {result.is_demo ? (
+                  <span>
+                    {t("map.demoSource")}
+                  </span>
+                ) : (
+                  <>
+                    <span>{t("map.osmSource")}</span>
+                    <span>
+                      {t("map.tomtomSource")}
+                    </span>
+                  </>
+                )}
               </div>
 
               {(

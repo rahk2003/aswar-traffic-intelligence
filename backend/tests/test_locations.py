@@ -107,9 +107,15 @@ def test_health_endpoint(client):
     response = client.get("/api/health")
 
     assert response.status_code == 200
-    assert response.json() == {
-        "status": "ok"
-    }
+    data = response.json()
+
+    assert data["status"] == "ok"
+    assert data["mode"] == "live"
+    assert data["requested_mode"] == "false"
+    assert (
+        data["services"]["openstreetmap"]
+        == "available"
+    )
 
 
 def test_locations_ranking(

@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routes.assistant import router as assistant_router
 from app.routes.locations import router as locations_router
 from app.routes.satellite import router as satellite_router
+from app.runtime import get_runtime_status
 
 
 app = FastAPI(
@@ -22,6 +23,10 @@ app.add_middleware(
         "http://localhost:5173",
         "http://127.0.0.1:5173",
     ],
+    allow_origin_regex=(
+        r"^https?://(localhost|127\.0\.0\.1)"
+        r"(?::\d+)?$"
+    ),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -44,7 +49,15 @@ def root() -> dict[str, str]:
 
 
 @app.get("/api/health")
-def health_check() -> dict[str, str]:
+def health_check() -> dict:
+    runtime = get_runtime_status()
+
     return {
-        "status": "ok"
+        "status": "ok",
+        "mode": runtime.mode,
+        "requested_mode": (
+            runtime.requested_mode
+        ),
+        "services": runtime.services,
+        "demo_reason": runtime.demo_reason,
     }

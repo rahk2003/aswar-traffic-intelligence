@@ -1,6 +1,7 @@
-const API_BASE_URL =
+export const API_BASE_URL = (
   import.meta.env.VITE_API_BASE_URL
-  || "http://127.0.0.1:8000";
+  || "http://127.0.0.1:8000"
+).replace(/\/+$/, "");
 
 
 export class ApiError extends Error {
@@ -128,6 +129,20 @@ export function analyzePoint({
 }
 
 
+export function getHealth({
+  signal,
+} = {}) {
+  return request(
+    "/api/health",
+    {
+      method: "GET",
+      signal,
+    },
+    5000,
+  );
+}
+
+
 export function explainAnalysis({
   question,
   questionType,
@@ -143,6 +158,28 @@ export function explainAnalysis({
         question_type: questionType,
         language,
         analysis,
+      }),
+    },
+    20000,
+  );
+}
+
+
+export function explainComparison({
+  language,
+  locationA,
+  locationB,
+  signal,
+}) {
+  return request(
+    "/api/assistant/compare",
+    {
+      method: "POST",
+      signal,
+      body: JSON.stringify({
+        language,
+        location_a: locationA,
+        location_b: locationB,
       }),
     },
     20000,

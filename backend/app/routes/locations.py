@@ -24,6 +24,13 @@ from app.services.spatial_analysis import (
 from app.services.traffic_scoring import (
     calculate_traffic_score,
 )
+from app.runtime import is_demo_mode
+from app.services.demo_service import (
+    build_demo_analysis,
+    build_demo_comparison,
+    build_demo_ranking,
+    build_demo_summary,
+)
 
 
 router = APIRouter(
@@ -49,6 +56,21 @@ class AnalyzePointRequest(BaseModel):
         ge=250,
         le=2000,
     )
+
+
+def require_database(
+    database: Session | None,
+) -> Session:
+    if database is None:
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Database service is unavailable "
+                "for this Live Mode feature."
+            ),
+        )
+
+    return database
 
 def get_latest_traffic(
     database: Session,
@@ -137,14 +159,20 @@ def calculate_location_score(
 
 @router.get("/ranking")
 def get_locations_ranking(
-    database: Session = Depends(get_db),
+    database: Session | None = Depends(get_db),
 ) -> dict:
     """
     Rank locations that have official 24-hour vehicle
     counts. Context-only locations are returned separately.
     """
 
-    locations = database.scalars(
+    if is_demo_mode():
+        return build_demo_ranking()
+
+    live_database = require_database(
+        database
+    )
+    locations = live_database.scalars(
         select(Location).order_by(Location.id)
     ).all()
 
@@ -154,13 +182,13 @@ def get_locations_ranking(
 
     for location in locations:
         latest_traffic = get_latest_traffic(
-            database=database,
+            database=live_database,
             location_id=location.id,
         )
 
         spatial_data, score_data = (
             calculate_location_score(
-                database=database,
+                database=live_database,
                 location=location,
                 latest_traffic=latest_traffic,
             )
@@ -297,7 +325,7 @@ def get_locations_ranking(
 @router.post("/compare")
 def compare_locations(
     request: CompareLocationsRequest,
-    database: Session = Depends(get_db),
+    database: Session | None = Depends(get_db),
 ) -> dict:
     """
     Compare the Traffic Score and spatial characteristics
@@ -322,12 +350,32 @@ def compare_locations(
             detail="Please select two different locations",
         )
 
-    location_a = database.get(
+    if is_demo_mode():
+        comparison = build_demo_comparison(
+            request.location_a_id,
+            request.location_b_id,
+        )
+
+        if comparison is None:
+            raise HTTPException(
+                status_code=404,
+                detail=(
+                    "One or both Demo Mode "
+                    "locations were not found"
+                ),
+            )
+
+        return comparison
+
+    live_database = require_database(
+        database
+    )
+    location_a = live_database.get(
         Location,
         request.location_a_id,
     )
 
-    location_b = database.get(
+    location_b = live_database.get(
         Location,
         request.location_b_id,
     )
@@ -351,23 +399,23 @@ def compare_locations(
         )
 
     latest_traffic_a = get_latest_traffic(
-        database=database,
+        database=live_database,
         location_id=location_a.id,
     )
 
     latest_traffic_b = get_latest_traffic(
-        database=database,
+        database=live_database,
         location_id=location_b.id,
     )
 
     spatial_a, score_a = calculate_location_score(
-        database=database,
+        database=live_database,
         location=location_a,
         latest_traffic=latest_traffic_a,
     )
 
     spatial_b, score_b = calculate_location_score(
-        database=database,
+        database=live_database,
         location=location_b,
         latest_traffic=latest_traffic_b,
     )
@@ -542,6 +590,15 @@ def analyze_point(
     live OpenStreetMap and TomTom data.
     """
 
+    if is_demo_mode():
+        return build_demo_analysis(
+            latitude=request.latitude,
+            longitude=request.longitude,
+            radius_meters=(
+                request.radius_meters
+            ),
+        )
+
     try:
         return analyze_live_point(
             latitude=request.latitude,
@@ -557,7 +614,7 @@ def analyze_point(
 @router.get("/{location_id}/summary")
 def get_location_summary(
     location_id: int,
-    database: Session = Depends(get_db),
+    database: Session | None = Depends(get_db),
 ) -> dict:
     """
     Return location information, the latest TomTom
@@ -565,7 +622,25 @@ def get_location_summary(
     and Traffic Score.
     """
 
-    location = database.get(
+    if is_demo_mode():
+        summary = build_demo_summary(
+            location_id
+        )
+
+        if summary is None:
+            raise HTTPException(
+                status_code=404,
+                detail=(
+                    "Demo Mode location not found"
+                ),
+            )
+
+        return summary
+
+    live_database = require_database(
+        database
+    )
+    location = live_database.get(
         Location,
         location_id,
     )
@@ -577,12 +652,12 @@ def get_location_summary(
         )
 
     latest_traffic = get_latest_traffic(
-        database=database,
+        database=live_database,
         location_id=location_id,
     )
 
     latest_osm = get_latest_osm_snapshot(
-        database=database,
+        database=live_database,
         location_id=location_id,
     )
 
@@ -674,7 +749,7 @@ def get_location_summary(
 
     spatial_data, traffic_score_data = (
         calculate_location_score(
-            database=database,
+            database=live_database,
             location=location,
             latest_traffic=latest_traffic,
         )

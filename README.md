@@ -60,26 +60,35 @@ aswar-traffic-intelligence/
 
 - Python 3.11 or later.
 - Node.js and npm.
-- PostgreSQL with the PostGIS extension.
-- A TomTom API key for live traffic context.
-- Optional Copernicus credentials for Sentinel-2 imagery.
-- Optional Google Cloud and Google Earth Engine credentials for Dynamic World analysis.
+- PostgreSQL with the PostGIS extension for Live Mode database features.
+- A TomTom API key for Live Mode traffic context.
+- Copernicus credentials for Live Mode Sentinel-2 imagery.
+- Google Cloud and Google Earth Engine credentials for Live Mode Dynamic World analysis.
 - Optional Ollama access for model-generated assistant responses.
+
+No database, API key, or service-account file is required for Demo Mode.
 
 ## Local Setup
 
 ### Backend
+
+For a fresh clone, the backend starts in Demo Mode automatically without creating an environment file:
 
 ```bash
 cd backend
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env
 uvicorn app.main:app --reload
 ```
 
-Review `backend/.env` and provide the services and credentials required for the features you intend to use. Never commit real API keys or service-account credentials.
+To configure Live Mode, copy the example file and provide the required services:
+
+```bash
+cp .env.example .env
+```
+
+Review `backend/.env` and provide the credentials required for the features you intend to use. Never commit real API keys or service-account credentials.
 
 ### Frontend
 
@@ -90,6 +99,18 @@ npm run dev
 ```
 
 The frontend uses `http://127.0.0.1:8000` as the default API base URL. To use another backend address, copy `frontend/.env.example` to `frontend/.env` and set `VITE_API_BASE_URL`.
+
+### Runtime Modes
+
+The backend supports three values for `DEMO_MODE`:
+
+- `DEMO_MODE=auto`: uses Live Mode only when the database, TomTom, Google Earth Engine, and Copernicus configuration is complete. Otherwise, it starts safely in Demo Mode.
+- `DEMO_MODE=true`: always uses the bundled, clearly labeled sample results.
+- `DEMO_MODE=false`: uses Live Mode. A missing service affects only the dependent feature and is reported as unavailable or with a clear `503` response.
+
+Demo Mode supports map-point analysis, comparison, the assistant, saved satellite context, and PDF report generation. Demo values are never presented as direct TomTom, OpenStreetMap, Google Earth Engine, or Copernicus observations.
+
+`GET /api/health` reports the active mode and the configuration status of the database and external services.
 
 ## Environment Variables
 
@@ -104,6 +125,7 @@ Backend variables:
 
 | Variable | Purpose |
 | --- | --- |
+| `DEMO_MODE` | Runtime behavior: `auto`, `true`, or `false`. |
 | `DATABASE_URL` | PostgreSQL and PostGIS connection string. |
 | `TOMTOM_API_KEY` | TomTom API key used for live traffic context. |
 | `OLLAMA_BASE_URL` | Optional Ollama server URL. |
@@ -152,6 +174,7 @@ External-source failures are handled explicitly:
 
 - If either OpenStreetMap or TomTom is unavailable, the API can return a partial result with `data_warnings`. A Traffic Score is not produced when its required inputs are incomplete.
 - If both traffic-analysis sources are unavailable, the API returns a meaningful `502` response instead of presenting an unsupported result.
+- Database initialization is lazy. Missing database configuration never prevents `/api/health` or Demo Mode routes from starting.
 
 ## Satellite Context Analysis
 
@@ -185,11 +208,15 @@ The credentials are used by the backend only. Satellite responses are cached for
 
 Satellite results describe land-cover context. They do not represent vehicle counts and do not modify the Traffic Score or its weights.
 
+In Demo Mode, the backend returns a saved, explicitly labeled satellite example instead of claiming a live Earth Engine classification.
+
 ## AI Assistant
 
 The assistant explains the current analysis result in plain language. It can describe why a location received its score, identify strong and weak factors, discuss site suitability, suggest ways to improve evaluation confidence, and interpret the satellite context shown for the selected area.
 
 Assistant responses are grounded in the current result supplied to `/api/assistant/explain`. The assistant does not recalculate the Traffic Score, change its weights, or modify stored analysis data. A deterministic local explanation remains available when optional Ollama configuration is absent or the model service cannot be reached.
+
+When the current result is from Demo Mode, the assistant explicitly identifies it as sample data and does not attribute it to live TomTom or satellite services.
 
 ## API Endpoints
 
@@ -250,5 +277,7 @@ OpenStreetMap, TomTom, Google Earth Engine, Dynamic World, Copernicus, and Senti
 - The Traffic Score is an analytical decision-support result, not a guarantee of advertising performance or an official traffic count.
 - Satellite classification, confidence, and imagery dates must be presented with the returned source metadata and limitations.
 - The PDF report reflects the analysis currently displayed in the frontend and does not create a separate scoring method.
+- PDF generation uses a lightweight report-only container, has a 15-second maximum duration, and continues without optional imagery.
 - Partial results must be clearly labeled whenever an external data source is unavailable.
+- Bundled Demo Data is sample content for evaluation and is not live traffic or satellite data.
 - API keys and service-account files must stay on the backend and must never be committed to Git.

@@ -1,9 +1,11 @@
-from app.database import Base, engine
+from app.database import Base, get_engine
 import app.models  # noqa: F401
 
 
 def create_tables() -> None:
-    Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(
+        bind=get_engine()
+    )
     print("Database tables created successfully")
 
 

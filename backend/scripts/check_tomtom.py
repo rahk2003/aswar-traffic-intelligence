@@ -8,7 +8,7 @@ import httpx
 from dotenv import load_dotenv
 
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 ENV_FILE = BASE_DIR / ".env"
 OUTPUT_DIR = BASE_DIR / "data" / "raw"
 

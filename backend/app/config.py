@@ -148,6 +148,7 @@ class DynamicWorldSettings:
     dataset: str
     search_days: int
     max_pixels: int
+    request_timeout_seconds: float = 30.0
 
     @property
     def is_configured(self) -> bool:
@@ -196,5 +197,62 @@ class DynamicWorldSettings:
                 5_000_000,
                 100_000,
                 100_000_000,
+            ),
+            request_timeout_seconds=(
+                _float_setting(
+                    "DYNAMIC_WORLD_REQUEST_TIMEOUT_SECONDS",
+                    30.0,
+                    5.0,
+                    120.0,
+                )
+            ),
+        )
+
+
+@dataclass(frozen=True)
+class LiveAnalysisSettings:
+    """Timeouts for live OpenStreetMap and TomTom calls."""
+
+    overpass_request_timeout_seconds: float
+    overpass_connect_timeout_seconds: float
+    overpass_query_timeout_seconds: int
+    tomtom_request_timeout_seconds: float
+
+    @classmethod
+    def from_environment(
+        cls,
+    ) -> "LiveAnalysisSettings":
+        return cls(
+            overpass_request_timeout_seconds=(
+                _float_setting(
+                    "OVERPASS_REQUEST_TIMEOUT_SECONDS",
+                    20.0,
+                    3.0,
+                    60.0,
+                )
+            ),
+            overpass_connect_timeout_seconds=(
+                _float_setting(
+                    "OVERPASS_CONNECT_TIMEOUT_SECONDS",
+                    8.0,
+                    1.0,
+                    20.0,
+                )
+            ),
+            overpass_query_timeout_seconds=(
+                _integer_setting(
+                    "OVERPASS_QUERY_TIMEOUT_SECONDS",
+                    18,
+                    3,
+                    60,
+                )
+            ),
+            tomtom_request_timeout_seconds=(
+                _float_setting(
+                    "TOMTOM_REQUEST_TIMEOUT_SECONDS",
+                    10.0,
+                    2.0,
+                    30.0,
+                )
             ),
         )

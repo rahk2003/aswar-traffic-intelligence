@@ -96,9 +96,24 @@ Data Space Ecosystem.
 
 ```bash
 cd backend
-pytest
+python -m pytest -q
 
 cd ../frontend
 npm run lint
 npm run build
 ```
+
+لاختبار التحليل الحقيقي عبر خمس فئات مختلفة من المواقع وقياس زمن
+الكود الداخلي بصورة منفصلة عن زمن الخدمات الخارجية:
+
+```bash
+cd backend
+python -m scripts.validate_multiple_locations --radius 500
+python -m scripts.measure_performance --iterations 25
+python -m scripts.measure_satellite --radius 500
+```
+
+يمكن ضبط مهل OpenStreetMap وTomTom من `backend/.env` عبر المتغيرات
+الموثقة في `backend/.env.example`. إذا تعطل مصدر واحد فقط، يعيد
+تحليل النقطة نتيجة جزئية مع `data_warnings` ولا يحسب Traffic Score
+من بيانات ناقصة. أما تعطل المصدرين معًا فيرجع خطأ 502 مفهومًا.

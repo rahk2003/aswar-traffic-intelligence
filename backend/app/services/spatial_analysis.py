@@ -151,6 +151,22 @@ SPATIAL_METRICS_SQL = text(
             ON road.location_id = location.id
 
         WHERE location.id = :location_id
+          AND road.highway_type IN (
+              'motorway',
+              'motorway_link',
+              'trunk',
+              'trunk_link',
+              'primary',
+              'primary_link',
+              'secondary',
+              'secondary_link',
+              'tertiary',
+              'tertiary_link',
+              'unclassified',
+              'residential',
+              'living_street',
+              'service'
+          )
 
         ORDER BY ST_Distance(
             location.geom::geography,
@@ -298,5 +314,10 @@ def get_spatial_metrics(
         ),
         "road_type_score": float(
             result["road_type_score"] or 0
+        ),
+        "road_type_score_reason": (
+            "nearest_supported_road"
+            if result["nearest_road_type"]
+            else "no_supported_road_found"
         ),
     }

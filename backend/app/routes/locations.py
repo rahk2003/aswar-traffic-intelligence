@@ -45,7 +45,7 @@ class AnalyzePointRequest(BaseModel):
     )
 
     radius_meters: int = Field(
-        default=1000,
+        default=500,
         ge=250,
         le=2000,
     )

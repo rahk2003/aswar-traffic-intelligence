@@ -628,6 +628,12 @@ const resources = {
 
       errors: {
         title: "تعذر إكمال التحليل",
+        partialTitle:
+          "اكتمل التحليل بالبيانات المتاحة فقط",
+        osm_unavailable:
+          "تعذر جلب بيانات الطرق والخدمات من OpenStreetMap، لذلك لم تُحسب الدرجة.",
+        traffic_unavailable:
+          "تعذر جلب حالة المرور من TomTom، لذلك لم تُحسب الدرجة.",
         network:
           "تعذر الاتصال بالخادم. تأكد من تشغيل خدمة التحليل ثم أعد المحاولة.",
         timeout:
@@ -1227,6 +1233,12 @@ const resources = {
 
       errors: {
         title: "The analysis could not be completed",
+        partialTitle:
+          "The analysis completed with available data only",
+        osm_unavailable:
+          "Road and service data could not be retrieved from OpenStreetMap, so no score was calculated.",
+        traffic_unavailable:
+          "Live traffic could not be retrieved from TomTom, so no score was calculated.",
         network:
           "The platform could not connect to the analysis service. Make sure it is running, then try again.",
         timeout:

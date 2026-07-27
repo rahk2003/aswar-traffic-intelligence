@@ -13,6 +13,7 @@ import {
 
 import {
   CoordinateInput,
+  DataWarnings,
   ErrorState,
   LoadingState,
   LocationMarker,
@@ -281,6 +282,11 @@ function AnalysisPreview({
 
       {!isLoading && !error && result && (
         <>
+          <DataWarnings
+            warnings={result.data_warnings}
+            t={t}
+          />
+
           <ScoreCard
             compact
             label={t("map.score")}

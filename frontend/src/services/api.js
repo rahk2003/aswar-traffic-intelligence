@@ -128,35 +128,6 @@ export function analyzePoint({
 }
 
 
-export async function getLocations() {
-  const data = await request(
-    "/api/locations/ranking",
-  );
-
-  return [
-    ...(data.ranked_locations || []),
-    ...(data.context_only_locations || []),
-  ];
-}
-
-
-export function compareLocations(
-  locationAId,
-  locationBId,
-) {
-  return request(
-    "/api/locations/compare",
-    {
-      method: "POST",
-      body: JSON.stringify({
-        location_a_id: Number(locationAId),
-        location_b_id: Number(locationBId),
-      }),
-    },
-  );
-}
-
-
 export function explainAnalysis({
   question,
   questionType,

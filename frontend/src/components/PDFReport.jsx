@@ -975,18 +975,25 @@ export default function PDFReportButton({
     setShowSuccess(false);
 
     try {
-      await waitForNextPaint();
-      await document.fonts?.ready;
-      await waitForReportImages(
-        reportRef.current,
-      );
-
-      const [
-        { jsPDF },
-        { default: html2canvas },
-      ] = await Promise.all([
+      const librariesPromise = Promise.all([
         import("jspdf"),
         import("html2canvas"),
+      ]);
+      const reportReadyPromise = (async () => {
+        await waitForNextPaint();
+        await document.fonts?.ready;
+        await waitForReportImages(
+          reportRef.current,
+        );
+      })();
+      const [
+        [
+          { jsPDF },
+          { default: html2canvas },
+        ],
+      ] = await Promise.all([
+        librariesPromise,
+        reportReadyPromise,
       ]);
       const pages =
         reportRef.current?.querySelectorAll(

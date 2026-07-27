@@ -5,17 +5,24 @@ from datetime import (
     timezone,
 )
 import json
+from pathlib import Path
+from time import sleep
 
 import httpx
 import pytest
 from fastapi.testclient import TestClient
 
-from app.config import SatelliteSettings
+from app.config import (
+    DynamicWorldSettings,
+    SatelliteSettings,
+)
 from app.main import app
 from app.routes.satellite import (
     get_satellite_service,
 )
 from app.services.dynamic_world_service import (
+    DynamicWorldService,
+    DynamicWorldServiceError,
     VEGETATION_BANDS,
     _dynamic_world_limitations,
     _parse_dynamic_world_statistics,
@@ -38,6 +45,46 @@ NOW = datetime(
 )
 SECRET = "test-secret-never-log"
 PNG_BYTES = b"\x89PNG\r\n\x1a\nsatellite"
+
+
+def test_dynamic_world_timeout_is_sanitized(
+    monkeypatch,
+):
+    service = DynamicWorldService(
+        DynamicWorldSettings(
+            project_id="test-project",
+            credentials_path=str(
+                Path(__file__)
+            ),
+            dataset="GOOGLE/DYNAMICWORLD/V1",
+            search_days=30,
+            max_pixels=5_000_000,
+            request_timeout_seconds=0.01,
+        )
+    )
+
+    def slow_analysis(*_args):
+        sleep(0.05)
+        return {}
+
+    monkeypatch.setattr(
+        service,
+        "_get_probabilities_sync",
+        slow_analysis,
+    )
+
+    with pytest.raises(
+        DynamicWorldServiceError,
+        match="timed out",
+    ):
+        run(
+            service.get_probabilities(
+                latitude=24.7136,
+                longitude=46.6753,
+                radius_meters=500,
+                reference_date=NOW,
+            )
+        )
 
 
 def make_settings(

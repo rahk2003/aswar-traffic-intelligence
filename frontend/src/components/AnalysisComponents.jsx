@@ -437,3 +437,37 @@ export function ErrorState({
     </div>
   );
 }
+
+
+export function DataWarnings({
+  warnings,
+  t,
+}) {
+  if (
+    !Array.isArray(warnings)
+    || warnings.length === 0
+  ) {
+    return null;
+  }
+
+  return (
+    <div
+      className="analysis-warning"
+      role="status"
+    >
+      <strong>{t("errors.partialTitle")}</strong>
+      <ul>
+        {warnings.map((warning) => (
+          <li key={warning}>
+            {t(
+              `errors.${warning}`,
+              {
+                defaultValue: warning,
+              },
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}

@@ -78,13 +78,23 @@ class DynamicWorldService:
             )
 
         try:
-            return await asyncio.to_thread(
-                self._get_probabilities_sync,
-                latitude,
-                longitude,
-                radius_meters,
-                reference_date,
+            return await asyncio.wait_for(
+                asyncio.to_thread(
+                    self._get_probabilities_sync,
+                    latitude,
+                    longitude,
+                    radius_meters,
+                    reference_date,
+                ),
+                timeout=(
+                    self.settings
+                    .request_timeout_seconds
+                ),
             )
+        except asyncio.TimeoutError:
+            raise DynamicWorldServiceError(
+                "Dynamic World analysis timed out."
+            ) from None
         except (
             DynamicWorldNotConfiguredError,
             DynamicWorldNoDataError,

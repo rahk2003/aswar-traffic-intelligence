@@ -14,6 +14,7 @@ import {
 
 import {
   CoordinateInput,
+  DataWarnings,
   ErrorState,
   LoadingState,
   LocationMarker,
@@ -483,6 +484,11 @@ function MapPage() {
                   {t("map.newLocation")}
                 </button>
               </div>
+
+              <DataWarnings
+                warnings={result.data_warnings}
+                t={t}
+              />
 
               <ScoreCard
                 label={t("map.score")}

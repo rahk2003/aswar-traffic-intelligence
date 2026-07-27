@@ -4,11 +4,9 @@ from time import perf_counter
 import math
 import os
 from collections import Counter
-from pathlib import Path
 from typing import Any, Iterator
 
 import httpx
-from dotenv import load_dotenv
 from pyproj import Transformer
 from shapely.geometry import (
     GeometryCollection,
@@ -17,15 +15,12 @@ from shapely.geometry import (
     Point,
 )
 from shapely.geometry.base import BaseGeometry
-from shapely.ops import transform, unary_union
+from shapely.ops import transform
 
+from app.config import LiveAnalysisSettings
 from app.services.traffic_scoring import (
     calculate_traffic_score,
 )
-
-
-BASE_DIR = Path(__file__).resolve().parents[2]
-load_dotenv(BASE_DIR / ".env")
 
 
 OVERPASS_URLS = [
@@ -50,6 +45,12 @@ ROAD_TYPE_SCORES = {
     "living_street": 30,
     "service": 20,
 }
+SUPPORTED_NEAREST_ROAD_TYPES = frozenset(
+    ROAD_TYPE_SCORES
+)
+LIVE_ANALYSIS_SETTINGS = (
+    LiveAnalysisSettings.from_environment()
+)
 
 
 TRAFFIC_LEVEL_CODES = {
@@ -100,8 +101,9 @@ def fetch_osm_metrics(
     longitude: float,
     radius_meters: int,
 ) -> dict[str, Any]:
+    settings = LIVE_ANALYSIS_SETTINGS
     query = f"""
-    [out:json][timeout:45];
+    [out:json][timeout:{settings.overpass_query_timeout_seconds}];
     (
         way(around:{radius_meters},{latitude},{longitude})
             ["highway"];
@@ -129,8 +131,16 @@ def fetch_osm_metrics(
     }
 
     timeout = httpx.Timeout(
-        timeout=90.0,
-        connect=15.0,
+        timeout=(
+            settings
+            .overpass_request_timeout_seconds
+        ),
+        connect=min(
+            settings
+            .overpass_connect_timeout_seconds,
+            settings
+            .overpass_request_timeout_seconds,
+        ),
     )
 
     osm_payload = None
@@ -151,6 +161,15 @@ def fetch_osm_metrics(
 
                 response.raise_for_status()
                 osm_payload = response.json()
+
+                if not isinstance(
+                    osm_payload,
+                    dict,
+                ):
+                    raise ValueError(
+                        "Expected a JSON object"
+                    )
+
                 successful_server = server_url
                 break
 
@@ -184,6 +203,11 @@ def fetch_osm_metrics(
 
     elements = osm_payload.get("elements", [])
 
+    if not isinstance(elements, list):
+        raise RuntimeError(
+            "OpenStreetMap returned invalid data."
+        )
+
     road_records: list[dict[str, Any]] = []
     service_ids: set[str] = set()
 
@@ -195,7 +219,13 @@ def fetch_osm_metrics(
     traffic_signals_count = 0
 
     for element in elements:
+        if not isinstance(element, dict):
+            continue
+
         tags = element.get("tags", {})
+
+        if not isinstance(tags, dict):
+            tags = {}
 
         highway_type = tags.get("highway")
         amenity_type = tags.get("amenity")
@@ -232,6 +262,9 @@ def fetch_osm_metrics(
 
         geometry = element.get("geometry", [])
 
+        if not isinstance(geometry, list):
+            continue
+
         coordinates = [
             (
                 point["lon"],
@@ -239,6 +272,8 @@ def fetch_osm_metrics(
             )
             for point in geometry
             if (
+                isinstance(point, dict)
+                and
                 "lon" in point
                 and "lat" in point
             )
@@ -297,7 +332,11 @@ def fetch_osm_metrics(
             projected_road
         )
 
-        if distance < nearest_distance:
+        if (
+            road["highway_type"]
+            in SUPPORTED_NEAREST_ROAD_TYPES
+            and distance < nearest_distance
+        ):
             nearest_distance = distance
             nearest_road = road
 
@@ -523,6 +562,11 @@ def fetch_osm_metrics(
             nearest_road_distance
         ),
         "road_type_score": road_type_score,
+        "road_type_score_reason": (
+            "nearest_supported_road"
+            if nearest_road is not None
+            else "no_supported_road_found"
+        ),
         "road_types": dict(road_types),
         "amenity_types": dict(amenity_types),
         "shop_types": dict(shop_types),
@@ -536,6 +580,7 @@ def fetch_tomtom_traffic(
     latitude: float,
     longitude: float,
 ) -> dict[str, Any]:
+    settings = LIVE_ANALYSIS_SETTINGS
     api_key = os.getenv("TOMTOM_API_KEY")
 
     if not api_key:
@@ -560,7 +605,15 @@ def fetch_tomtom_traffic(
         response = httpx.get(
             url,
             params=params,
-            timeout=30.0,
+            timeout=httpx.Timeout(
+                settings
+                .tomtom_request_timeout_seconds,
+                connect=min(
+                    5.0,
+                    settings
+                    .tomtom_request_timeout_seconds,
+                ),
+            ),
         )
 
         response.raise_for_status()
@@ -574,9 +627,18 @@ def fetch_tomtom_traffic(
 
     except httpx.RequestError as error:
         raise RuntimeError(
-            "Could not connect to TomTom: "
-            f"{error}"
+            "Could not connect to TomTom."
         ) from error
+
+    except ValueError as error:
+        raise RuntimeError(
+            "TomTom returned invalid JSON."
+        ) from error
+
+    if not isinstance(payload, dict):
+        raise RuntimeError(
+            "TomTom returned invalid data."
+        )
 
     flow_data = payload.get(
         "flowSegmentData",
@@ -587,6 +649,11 @@ def fetch_tomtom_traffic(
         raise RuntimeError(
             "TomTom response did not contain "
             "flowSegmentData"
+        )
+
+    if not isinstance(flow_data, dict):
+        raise RuntimeError(
+            "TomTom returned invalid flow data."
         )
 
     current_speed = flow_data.get(
@@ -678,6 +745,9 @@ def analyze_live_point(
     radius_meters: int,
 ) -> dict[str, Any]:
     started_at = perf_counter()
+    osm_metrics = None
+    live_traffic = None
+    data_warnings: list[str] = []
 
     with ThreadPoolExecutor(max_workers=2) as executor:
         osm_future = executor.submit(
@@ -693,43 +763,63 @@ def analyze_live_point(
             longitude,
         )
 
-        osm_metrics = osm_future.result()
-        live_traffic = traffic_future.result()
+        try:
+            osm_metrics = osm_future.result()
+        except RuntimeError:
+            data_warnings.append(
+                "osm_unavailable"
+            )
+
+        try:
+            live_traffic = traffic_future.result()
+        except RuntimeError:
+            data_warnings.append(
+                "traffic_unavailable"
+            )
 
     analysis_duration_seconds = round(
         perf_counter() - started_at,
         3,
     )
 
-    score = calculate_traffic_score(
-        road_type_score=osm_metrics[
-            "road_type_score"
-        ],
-        road_density_km_per_km2=osm_metrics[
-            "road_density_km_per_km2"
-        ],
-        intersection_count=osm_metrics[
-            "intersection_count"
-        ],
-        nearby_services_count=osm_metrics[
-            "nearby_services_count"
-        ],
-        congestion_index=live_traffic[
-            "congestion_index"
-        ],
-        vehicle_count_24h=None,
-    )
+    if (
+        osm_metrics is None
+        and live_traffic is None
+    ):
+        raise RuntimeError(
+            "Live location analysis is "
+            "temporarily unavailable."
+        )
 
-    return {
-        "analysis_type": "live_point",
-        "requested_point": {
-            "latitude": latitude,
-            "longitude": longitude,
-            "radius_meters": radius_meters,
-        },
-        "spatial_analysis": osm_metrics,
-        "live_traffic": live_traffic,
-        "traffic_score": {
+    score_result = None
+
+    if (
+        osm_metrics is not None
+        and live_traffic is not None
+    ):
+        score = calculate_traffic_score(
+            road_type_score=osm_metrics[
+                "road_type_score"
+            ],
+            road_density_km_per_km2=(
+                osm_metrics[
+                    "road_density_km_per_km2"
+                ]
+            ),
+            intersection_count=osm_metrics[
+                "intersection_count"
+            ],
+            nearby_services_count=(
+                osm_metrics[
+                    "nearby_services_count"
+                ]
+            ),
+            congestion_index=live_traffic[
+                "congestion_index"
+            ],
+            vehicle_count_24h=None,
+        )
+        score_result = {
             **score,
             "traffic_level_code": (
                 TRAFFIC_LEVEL_CODES.get(
@@ -737,12 +827,39 @@ def analyze_live_point(
                     "unknown",
                 )
             ),
+        }
+
+    return {
+        "analysis_type": "live_point",
+        "analysis_status": (
+            "partial"
+            if data_warnings
+            else "available"
+        ),
+        "analysis_duration_seconds":
+            analysis_duration_seconds,
+        "data_warnings": data_warnings,
+        "requested_point": {
+            "latitude": latitude,
+            "longitude": longitude,
+            "radius_meters": radius_meters,
         },
+        "spatial_analysis": osm_metrics,
+        "live_traffic": live_traffic,
+        "traffic_score": score_result,
         "data_note": (
-            "This analysis uses live TomTom traffic "
-            "conditions and current OpenStreetMap "
-            "geospatial data. No official 24-hour "
-            "vehicle count is available for an "
-            "arbitrary map point."
+            (
+                "One external data source was "
+                "unavailable, so the result is partial "
+                "and no Traffic Score was calculated."
+            )
+            if data_warnings
+            else (
+                "This analysis uses live TomTom traffic "
+                "conditions and current OpenStreetMap "
+                "geospatial data. No official 24-hour "
+                "vehicle count is available for an "
+                "arbitrary map point."
+            )
         ),
     }
